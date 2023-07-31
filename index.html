@@ -3,9 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Labyrinthe</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- tableau du labyrinthe -->
     
-    <script src="main.js"></script>
+    <table id="tableauLabyrinthe">
+        <tr>
+            <td class="case entree mur-haut"></td>
+            <td class="case mur-haut"></td>
+            <td class="case mur-haut"></td>
+            <td class="case mur-haut"></td>
+        </tr>
+        <tr>
+            <td class="case mur-droite"></td>
+            <td class="case mur-haut"></td>
+            <td class="case mur-haut"></td>
+            <td class="case sortie mur-haut"></td>
+        </tr>
+    </table>    
+
+    <script src="dist/bundle.js"></script>
 </body>
 </html>

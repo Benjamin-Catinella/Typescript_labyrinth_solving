@@ -1,0 +1,69 @@
+/* Variables */
+:root {
+    /* CSS HEX */
+
+    --table-border: #420977 solid 10px;
+    --table-background: #8438cc;
+    --page-color: #6F2EAA;
+    --entree-color: #FCF235;
+    --case-default-border : #cbbae0 dotted 1px;
+    --sortie-color: #F7343E;
+    --wall-border: #520c94 solid 5px;
+    --wall-border-radius: 10px;
+}
+
+
+
+/* debug */
+/** {
+    border: red solid 1px;
+} */
+
+html {
+    background-color: var(--page-color);
+}
+
+
+table {
+    box-shadow: 10px 10px 10px 5px rgba(0, 0, 0, 0.5);
+    border: var(--table-border);
+    border-collapse: collapse;
+    background-color: var(--table-background);
+    margin: auto;
+    margin-top: 50px;
+}
+
+/* cases */
+
+.case {
+    background-color: var(--table-background);
+    border-collapse: inherit;
+    border: var(--case-default-border);
+    height: 10vh;
+    width: 10vh;
+}
+
+.entree {
+    background-color: var(--entree-color);
+}
+
+.sortie {
+    background-color: var(--sortie-color);
+}
+
+.mur-haut {
+    border-top: var(--wall-border);
+}
+
+.mur-bas {
+    border-bottom: var(--wall-border);
+}
+
+.mur-gauche {
+    border-left: var(--wall-border);
+}
+
+.mur-droite {
+    border-right: var(--wall-border);
+}
+
