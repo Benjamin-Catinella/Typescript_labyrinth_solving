@@ -140952,6 +140952,11 @@
             },
             {
                 "posX": 22,
+            {
+                "posX": 22,
+                "posY": 4,
+                "walls": [
+                    true,
                 "posY": 4,
                 "walls": [
                     true,

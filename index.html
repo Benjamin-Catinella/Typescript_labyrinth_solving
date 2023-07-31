@@ -1,28 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Labyrinthe</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Dropdown pour choisir la taille du labyrinthe -->
+    <div class="selectContainer">
+      <select id="tailleLabyrinthe" class="select">
+        
+      </select>
+      <select id="choixLabyrinthe" class="select">
+
+      </select>
+    </div>
     <!-- tableau du labyrinthe -->
-    
-    <table id="tableauLabyrinthe">
-        <tr>
-            <td class="case entree mur-haut"></td>
-            <td class="case mur-haut"></td>
-            <td class="case mur-haut"></td>
-            <td class="case mur-haut"></td>
-        </tr>
-        <tr>
-            <td class="case mur-droite"></td>
-            <td class="case mur-haut"></td>
-            <td class="case mur-haut"></td>
-            <td class="case sortie mur-haut"></td>
-        </tr>
-    </table>    
+    <div>
+      <table id="tableauLabyrinthe"></table>
+    </div>
 
     <script src="dist/bundle.js"></script>
-</body>
+  </body>
 </html>

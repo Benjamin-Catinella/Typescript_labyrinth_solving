@@ -10,17 +10,20 @@
 import { Case } from "./model/Case";
 import { Labyrinthe } from "./model/Labyrinthe";
 import { JsonMapper } from "./mapping/JsonMapper";
+import { LabyrintheService } from "./service/LabyrintheService";
 
-const jsonMapper = new JsonMapper();
+const labyrintheService = new LabyrintheService();
+let labyrinthes : {[key: string]: Labyrinthe;};
 
 const htmlElements = {
   tableau: document.getElementById("tableauLabyrinthe"),
+  selectTaille: document.getElementById("tailleLabyrinthe"),
+  choixLabyrinthe: document.getElementById("choixLabyrinthe"),
 };
 
 const labyrintheElementsTemplates = {
-  case: '<td class="case %class%"></td>',
+  case: '<td class="case box %class%"></td>',
 };
-
 
 function getClassesFromCase(case_: Case): string {
   const classes: string[] = [];
@@ -53,17 +56,31 @@ function displayLabyrinthe(labyrinthe: Labyrinthe) {
   htmlElements.tableau!.innerHTML = html;
 }
 
+function onSelectLabyrintheChange($event: Event) {
 
-function getJsonDataFromAPI(): Promise<any> {
-  return fetch("http://localhost:3000/15")
-    .then((response) => response.json())
-    .then((json) => json);
 }
 
-function main() {
-  const data = getJsonDataFromAPI();
-  data.then((json) => {
-    const labyrinthe = jsonMapper.toLabyrinthe(json["ex-0"], 15);
+
+function onSelectTailleChange($event: Event) {
+  const target = $event.target as HTMLSelectElement;
+  const size = parseInt(target.value);
+  labyrintheService.getAllLabyrinthesOfSize(size).then((labs) => {
+    labyrinthes = labs;
+    displayLabyrinthe(labyrinthes["ex-1"]);
+  });
+}
+
+async function main() {
+  const sizes = 25;
+  htmlElements.selectTaille!.addEventListener("change", onSelectTailleChange);
+  htmlElements.choixLabyrinthe!.addEventListener("change", onSelectLabyrintheChange);
+  for (let i = 2; i < sizes; i++) {
+    const option = document.createElement("option");
+    option.value = (i + 1).toString();
+    option.innerText = (i + 1).toString();
+    htmlElements.selectTaille!.appendChild(option);
+  }
+  labyrintheService.getLabyrintheOfSize(25).then((labyrinthe) => {
     displayLabyrinthe(labyrinthe);
   });
 }

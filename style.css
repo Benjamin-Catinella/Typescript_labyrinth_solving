@@ -5,8 +5,9 @@
     --table-border: #420977 solid 10px;
     --table-background: #8438cc;
     --page-color: #6F2EAA;
+    --case-color: #c4bbcc;
     --entree-color: #FCF235;
-    --case-default-border : #cbbae0 dotted 1px;
+    --case-default-border : #420977 dotted 1px;
     --sortie-color: #F7343E;
     --wall-border: #520c94 solid 5px;
     --wall-border-radius: 10px;
@@ -32,15 +33,29 @@ table {
     margin: auto;
     margin-top: 50px;
 }
+.selectContainer{
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 100%;
+}
+.select {
+    border: var(--case-default-border);
+    border-radius: 5%;
+    text-align: center;
+    font-size: 60px;
+    height: 10vh;
+    width: 40%;
+}
 
 /* cases */
 
 .case {
-    background-color: var(--table-background);
+    background-color: var(--case-color);
     border-collapse: inherit;
     border: var(--case-default-border);
-    height: 10vh;
-    width: 10vh;
+    height: 5vh;
+    width: 5vh;
 }
 
 .entree {
@@ -66,4 +81,5 @@ table {
 .mur-droite {
     border-right: var(--wall-border);
 }
+
 
