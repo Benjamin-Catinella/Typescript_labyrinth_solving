@@ -1,3 +1,5 @@
+import { Position } from "./Position";
+
 export class Case{
     posX : number;
     posY : number;
@@ -24,5 +26,12 @@ export class Case{
         this.entrance = entrance;
     }
 
+    getPosition() : Position{
+        return new Position(this.posX, this.posY);
+    }
+
+    getId(): string{
+        return `${this.posX}-${this.posY}`;
+    }
 }
 

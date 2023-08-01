@@ -107,3 +107,9 @@ table {
 .mur-droite {
   border-right: var(--wall-border);
 }
+
+/* debug classes */
+
+.red {
+  background-color: red;
+}

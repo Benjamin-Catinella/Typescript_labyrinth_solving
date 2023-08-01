@@ -23,7 +23,7 @@ var CssMapper = /** @class */ (function () {
         classes.push(case_.walls.left ? "mur-gauche" : "");
         classes.push(case_.exit ? "sortie" : "");
         classes.push(case_.entrance ? "entree" : "");
-        return classes.join(" ");
+        return classes;
     };
     return CssMapper;
 }());
@@ -78,6 +78,62 @@ var JsonMapper = /** @class */ (function () {
 
 /***/ }),
 
+/***/ "./src/mapping/NodeCaseMapper.ts":
+/*!***************************************!*\
+  !*** ./src/mapping/NodeCaseMapper.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   NodeCaseMapper: () => (/* binding */ NodeCaseMapper)
+/* harmony export */ });
+/* harmony import */ var _model_Position__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../model/Position */ "./src/model/Position.ts");
+/* harmony import */ var _utils_Logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Logger */ "./src/utils/Logger.ts");
+
+
+var NodeCaseMapper = /** @class */ (function () {
+    function NodeCaseMapper() {
+    }
+    NodeCaseMapper.prototype.findAdjacentCasesTo = function (case_, casesList) {
+        _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info(case_);
+        _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info(casesList);
+        // Trouver la case dans la liste par rapport à sa position (pas forcément, on s'en fout de sa position)
+        // Définir la taille du tableau en prenant l'index maximal de chaque côtés (ou passer carrément la taille du labyrinthe)
+        var labXLength = casesList.map(function (c) { return c.posX; }).reduce(function (a, b) { return Math.max(a, b); }) + 1;
+        var labYLength = casesList.map(function (c) { return c.posY; }).reduce(function (a, b) { return Math.max(a, b); }) + 1;
+        var offsets = {
+            top: (((case_.posY + 1) % labYLength) + labYLength) % labYLength,
+            right: (((case_.posX + 1) % labXLength) + labXLength) % labXLength,
+            bottom: (((case_.posY - 1) % labYLength) + labYLength) % labYLength,
+            left: (((case_.posX - 1) % labXLength) + labXLength) % labXLength
+        };
+        var positions = {
+            top: new _model_Position__WEBPACK_IMPORTED_MODULE_0__.Position(case_.posX, offsets.top),
+            bottom: new _model_Position__WEBPACK_IMPORTED_MODULE_0__.Position(case_.posX, offsets.bottom),
+            right: new _model_Position__WEBPACK_IMPORTED_MODULE_0__.Position(offsets.right, case_.posY),
+            left: new _model_Position__WEBPACK_IMPORTED_MODULE_0__.Position(offsets.left, case_.posY),
+        };
+        _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info(offsets);
+        _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info(positions);
+        // Trouver les cases ayant un index vertical et horizontal de +1 -1 % tailleDuTableau pour loop
+        var adjacentCases = casesList.filter(function (c) {
+            return (c.getPosition().equals(positions.top) ||
+                c.getPosition().equals(positions.right) ||
+                c.getPosition().equals(positions.bottom) ||
+                c.getPosition().equals(positions.left));
+        });
+        _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info('adjacentCases:', adjacentCases);
+        // Retour
+        return adjacentCases;
+    };
+    return NodeCaseMapper;
+}());
+
+
+
+/***/ }),
+
 /***/ "./src/model/Case.ts":
 /*!***************************!*\
   !*** ./src/model/Case.ts ***!
@@ -88,6 +144,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Case: () => (/* binding */ Case)
 /* harmony export */ });
+/* harmony import */ var _Position__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Position */ "./src/model/Position.ts");
+
 var Case = /** @class */ (function () {
     function Case(posX, posY, walls, exit, entrance) {
         this.posX = posX;
@@ -96,6 +154,12 @@ var Case = /** @class */ (function () {
         this.exit = exit;
         this.entrance = entrance;
     }
+    Case.prototype.getPosition = function () {
+        return new _Position__WEBPACK_IMPORTED_MODULE_0__.Position(this.posX, this.posY);
+    };
+    Case.prototype.getId = function () {
+        return "".concat(this.posX, "-").concat(this.posY);
+    };
     return Case;
 }());
 
@@ -119,6 +183,31 @@ var Labyrinthe = /** @class */ (function () {
         this.cases = cases;
     }
     return Labyrinthe;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/model/Position.ts":
+/*!*******************************!*\
+  !*** ./src/model/Position.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Position: () => (/* binding */ Position)
+/* harmony export */ });
+var Position = /** @class */ (function () {
+    function Position(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    Position.prototype.equals = function (position) {
+        return this.x == position.x && this.y == position.y;
+    };
+    return Position;
 }());
 
 
@@ -221,6 +310,66 @@ var LabyrintheService = /** @class */ (function () {
 
 
 
+/***/ }),
+
+/***/ "./src/utils/Logger.ts":
+/*!*****************************!*\
+  !*** ./src/utils/Logger.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Logger: () => (/* binding */ Logger)
+/* harmony export */ });
+var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+var Logger = /** @class */ (function () {
+    function Logger() {
+    }
+    Logger.log = function () {
+        var message = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            message[_i] = arguments[_i];
+        }
+        console.log.apply(console, __spreadArray([this.logPrefix], message, false));
+    };
+    Logger.info = function () {
+        var message = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            message[_i] = arguments[_i];
+        }
+        console.info.apply(console, __spreadArray([this.infoPrefix], message, false));
+    };
+    Logger.warn = function () {
+        var message = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            message[_i] = arguments[_i];
+        }
+        console.warn.apply(console, __spreadArray([this.warnPrefix], message, false));
+    };
+    Logger.error = function () {
+        var message = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            message[_i] = arguments[_i];
+        }
+        console.error.apply(console, __spreadArray([this.errorPrefix], message, false));
+    };
+    Logger.logPrefix = "[LOG-".concat(new Date().toLocaleTimeString(), "]");
+    Logger.infoPrefix = "[INFO-".concat(new Date().toLocaleTimeString(), "]");
+    Logger.warnPrefix = "[WARN-".concat(new Date().toLocaleTimeString(), "]");
+    Logger.errorPrefix = "[ERROR-".concat(new Date().toLocaleTimeString(), "]");
+    return Logger;
+}());
+
+
 /***/ })
 
 /******/ 	});
@@ -288,6 +437,8 @@ var __webpack_exports__ = {};
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _service_LabyrintheService__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./service/LabyrintheService */ "./src/service/LabyrintheService.ts");
 /* harmony import */ var _mapping_CssMapper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mapping/CssMapper */ "./src/mapping/CssMapper.ts");
+/* harmony import */ var _mapping_NodeCaseMapper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./mapping/NodeCaseMapper */ "./src/mapping/NodeCaseMapper.ts");
+/* harmony import */ var _utils_Logger__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/Logger */ "./src/utils/Logger.ts");
 /**
  * Projet de parcours de labyrinthes
  */
@@ -329,9 +480,12 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 };
 
 
+
+
 // Services
 var labyrintheService = new _service_LabyrintheService__WEBPACK_IMPORTED_MODULE_0__.LabyrintheService();
 var cssMapper = new _mapping_CssMapper__WEBPACK_IMPORTED_MODULE_1__.CssMapper();
+var nodeCaseMapper = new _mapping_NodeCaseMapper__WEBPACK_IMPORTED_MODULE_2__.NodeCaseMapper();
 // Variables
 var labyrinthes;
 // Constants
@@ -340,25 +494,22 @@ var htmlElements = {
     selectTaille: document.getElementById("tailleLabyrinthe"),
     choixLabyrinthe: document.getElementById("choixLabyrinthe"),
 };
-var labyrintheElementsTemplates = {
-    case: '<td class="case box %class%"></td>',
-};
+var casesHTMLMap = {};
 // Dom manipulation functions
 function displayLabyrinthe(labyrinthe) {
     var size = labyrinthe.size;
     var cases = labyrinthe.cases;
-    var html = "<table>";
+    // Empty the table
+    htmlElements.tableau.innerHTML = "";
     for (var i = 0; i < size.height; i++) {
-        html += "<tr>";
+        var row = document.createElement("tr");
         for (var j = 0; j < size.width; j++) {
             var index = i * size.width + j;
             var case_ = cases[index];
-            html += labyrintheElementsTemplates.case.replace("%class%", cssMapper.getClassesFromCase(case_));
+            row.appendChild(casesHTMLMap[case_.getId()]);
         }
-        html += "</tr>";
+        htmlElements.tableau.appendChild(row);
     }
-    html += "</table>";
-    htmlElements.tableau.innerHTML = html;
 }
 function fillSelectLabyrinthe() {
     htmlElements.choixLabyrinthe.innerHTML = "";
@@ -369,21 +520,56 @@ function fillSelectLabyrinthe() {
         option.innerText = key;
         htmlElements.choixLabyrinthe.appendChild(option);
     });
-    displayLabyrinthe(labyrinthes[keys[0]]);
+}
+function populateCasesHTMLMap(cases) {
+    _utils_Logger__WEBPACK_IMPORTED_MODULE_3__.Logger.log("Populating casesHTMLMap ...");
+    cases.forEach(function (case_) {
+        var caseElement = document.createElement("td");
+        caseElement.id = case_.getId();
+        caseElement.classList.add("case");
+        caseElement.classList.add("box");
+        caseElement.addEventListener("click", onCaseClick);
+        cssMapper.getClassesFromCase(case_).forEach(function (cssClass) {
+            cssClass != "" ? caseElement.classList.add(cssClass) : null;
+        });
+        _utils_Logger__WEBPACK_IMPORTED_MODULE_3__.Logger.log("Adding caseElement", caseElement, "to casesHTMLMap");
+        casesHTMLMap[case_.getId()] = caseElement;
+    });
+    _utils_Logger__WEBPACK_IMPORTED_MODULE_3__.Logger.log("Finished populating caseHTMLMap : ", casesHTMLMap);
 }
 // Event handlers
 function onSelectTailleChange($event) {
     var target = $event.target;
     var size = parseInt(target.value);
     labyrintheService.getAllLabyrinthesOfSize(size).then(function (labs) {
+        _utils_Logger__WEBPACK_IMPORTED_MODULE_3__.Logger.info("Labyrinthes", labs);
         labyrinthes = labs;
         fillSelectLabyrinthe();
+        htmlElements.choixLabyrinthe.dispatchEvent(new Event("change"));
     });
 }
 function onSelectLabyrintheChange($event) {
     var target = $event.target;
     var labyrinthe = labyrinthes[target.value];
+    populateCasesHTMLMap(labyrinthe.cases);
     displayLabyrinthe(labyrinthe);
+}
+function treeSolver() {
+    /**
+     * Convertir le labyrinth en graphe
+     * Partir de la première node
+     * Si la node est la sortie, finir et remonter nombre de pas
+     * Si la node a déjà été visitée, remonter 0
+     * Si la node est un cul de sac, remonter 0
+     * Passer à la node suivante
+     */
+}
+function treeSolverRecursive() {
+}
+// Change background color of the clicked case
+function onCaseClick($event) {
+    var target = $event.target;
+    target.classList.toggle("red");
 }
 function main() {
     return __awaiter(this, void 0, void 0, function () {
@@ -400,7 +586,6 @@ function main() {
                 htmlElements.selectTaille.appendChild(option);
             }
             htmlElements.selectTaille.dispatchEvent(new Event("change"));
-            htmlElements.choixLabyrinthe.dispatchEvent(new Event("change"));
             return [2 /*return*/];
         });
     });

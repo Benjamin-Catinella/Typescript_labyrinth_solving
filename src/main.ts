@@ -5,11 +5,15 @@
 import { Labyrinthe } from "./model/Labyrinthe";
 import { LabyrintheService } from "./service/LabyrintheService";
 import { CssMapper } from "./mapping/CssMapper";
+import { NodeCaseMapper } from './mapping/NodeCaseMapper';
+import { Case } from "./model/Case";
+import { Logger } from "./utils/Logger";
 
 // Services
 
 const labyrintheService = new LabyrintheService();
 const cssMapper = new CssMapper();
+const nodeCaseMapper = new NodeCaseMapper();
 
 // Variables
 
@@ -23,30 +27,24 @@ const htmlElements = {
   choixLabyrinthe: document.getElementById("choixLabyrinthe"),
 };
 
-const labyrintheElementsTemplates = {
-  case: '<td class="case box %class%"></td>',
-};
+const casesHTMLMap : {[key: string]: HTMLElement;} = {};
 
 // Dom manipulation functions
 
 function displayLabyrinthe(labyrinthe: Labyrinthe) {
   const size = labyrinthe.size;
   const cases = labyrinthe.cases;
-  let html = "<table>";
+  // Empty the table
+  htmlElements.tableau!.innerHTML = "";
   for (let i = 0; i < size.height; i++) {
-    html += "<tr>";
+    const row = document.createElement("tr");
     for (let j = 0; j < size.width; j++) {
       const index = i * size.width + j;
       const case_ = cases[index];
-      html += labyrintheElementsTemplates.case.replace(
-        "%class%",
-        cssMapper.getClassesFromCase(case_)
-      );
+      row.appendChild(casesHTMLMap[case_.getId()]);
     }
-    html += "</tr>";
+    htmlElements.tableau!.appendChild(row);
   }
-  html += "</table>";
-  htmlElements.tableau!.innerHTML = html;
 }
 function fillSelectLabyrinthe() {
   htmlElements.choixLabyrinthe!.innerHTML = "";
@@ -57,22 +55,62 @@ function fillSelectLabyrinthe() {
     option.innerText = key;
     htmlElements.choixLabyrinthe!.appendChild(option);
   });
-  displayLabyrinthe(labyrinthes[keys[0]]);
 }
 
+function populateCasesHTMLMap(cases: Case[]) {
+  Logger.log("Populating casesHTMLMap ...")
+  cases.forEach((case_) => {
+    const caseElement = document.createElement("td");
+    caseElement.id = case_.getId();
+    caseElement.classList.add("case");
+    caseElement.classList.add("box");
+    // caseElement.addEventListener("click", onCaseClick);
+    cssMapper.getClassesFromCase(case_).forEach((cssClass) => {
+      cssClass != "" ? caseElement.classList.add(cssClass) : null;
+    });
+    Logger.log("Adding caseElement", caseElement, "to casesHTMLMap")
+    casesHTMLMap[case_.getId()] = caseElement;
+  });
+  Logger.log("Finished populating caseHTMLMap : ", casesHTMLMap);
+}
 // Event handlers
 
 function onSelectTailleChange($event: Event) {
   const target = $event.target as HTMLSelectElement;
   const size = parseInt(target.value);
   labyrintheService.getAllLabyrinthesOfSize(size).then((labs) => {
+    Logger.info("Labyrinthes", labs);
     labyrinthes = labs;
     fillSelectLabyrinthe();
+    htmlElements.choixLabyrinthe!.dispatchEvent(new Event("change"));
   });
-}function onSelectLabyrintheChange($event: Event) {
+}
+
+function onSelectLabyrintheChange($event: Event) {
   const target = $event.target as HTMLSelectElement;
   const labyrinthe = labyrinthes[target.value];
+  populateCasesHTMLMap(labyrinthe.cases);
   displayLabyrinthe(labyrinthe);
+}
+
+function treeSolver() {
+  /**
+   * Convertir le labyrinth en graphe
+   * Partir de la première node
+   * Si la node est la sortie, finir et remonter nombre de pas 
+   * Si la node a déjà été visitée, remonter 0
+   * Si la node est un cul de sac, remonter 0
+   * Passer à la node suivante
+   */
+
+}
+function treeSolverRecursive() {
+
+}
+// Change background color of the clicked case
+function onCaseClick($event: Event) {
+  const target = $event.target as HTMLElement;
+  target.classList.toggle("red");
 }
 
 async function main() {
@@ -87,7 +125,7 @@ async function main() {
     htmlElements.selectTaille!.appendChild(option);
   }
   htmlElements.selectTaille!.dispatchEvent(new Event("change"));
-  htmlElements.choixLabyrinthe!.dispatchEvent(new Event("change"));
 }
+
 
 main();
