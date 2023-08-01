@@ -1,8 +1,8 @@
 import { AbstractNode } from "./AbstractNode";
-import { Case } from "./Case";
+import { Square } from "./Square";
 
-export class NodeCase extends AbstractNode<Case>{
-    constructor(value: Case) {
+export class NodeCase extends AbstractNode<Square>{
+    constructor(value: Square) {
         super(value);
     }
 }

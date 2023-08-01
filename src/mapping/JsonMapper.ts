@@ -1,20 +1,20 @@
-import { Case } from '../model/Case';
-import { Labyrinthe } from '../model/Labyrinthe';
+import { Square } from '../model/Square';
+import { Labyrinth } from '../model/Labyrinth';
 export class JsonMapper {
 
-  public toLabyrinthe(json: any, size: number) {
+  public toLabyrinth(json: any, size: number) {
     const _size = {
       width: size,
       height: size,
     };
-    const cases: Case[] = [];
+    const cases: Square[] = [];
     for (let i = 0; i < json.length; i++) {
-      cases.push(this.toCase(json[i]));
+      cases.push(this.toSquare(json[i]));
     }
-    return new Labyrinthe(_size, cases);
+    return new Labyrinth(_size, cases);
   }
 
-  toCase(json: any) {
+  toSquare(json: any) {
     const entrance = json.entrance ? true : false;
     const exit = json.exit ? true : false;
     const walls = {
@@ -23,6 +23,6 @@ export class JsonMapper {
       bottom: json.walls[2],
       left: json.walls[3],
     };
-    return new Case(json.posX, json.posY, walls, exit, entrance);
+    return new Square(json.posX, json.posY, walls, exit, entrance);
   }
 }

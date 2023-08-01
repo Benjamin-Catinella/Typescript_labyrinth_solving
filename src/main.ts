@@ -2,53 +2,53 @@
  * Projet de parcours de labyrinthes
  */
 
-import { Labyrinthe } from "./model/Labyrinthe";
-import { LabyrintheService } from "./service/LabyrintheService";
+import { Labyrinth } from "./model/Labyrinth";
+import { LabyrinthService } from "./service/LabyrinthService";
 import { CssMapper } from "./mapping/CssMapper";
-import { NodeCaseMapper } from './mapping/NodeCaseMapper';
-import { Case } from "./model/Case";
+import { NodeSquareMapper } from './mapping/NodeCaseMapper';
+import { Square } from "./model/Square";
 import { Logger } from "./utils/Logger";
 
 // Services
 
-const labyrintheService = new LabyrintheService();
+const labyrinthService = new LabyrinthService();
 const cssMapper = new CssMapper();
-const nodeCaseMapper = new NodeCaseMapper();
+const nodeSquareMapper = new NodeSquareMapper();
 
 // Variables
 
-let labyrinthes : {[key: string]: Labyrinthe;};
+let labyrinths : {[key: string]: Labyrinth;};
 
 // Constants
 
 const htmlElements = {
-  tableau: document.getElementById("tableauLabyrinthe"),
-  selectTaille: document.getElementById("tailleLabyrinthe"),
-  choixLabyrinthe: document.getElementById("choixLabyrinthe"),
+  table: document.getElementById("labyrinthTable"),
+  selectSize: document.getElementById("sizeSelect"),
+  choixLabyrinthe: document.getElementById("labyrinthSelect"),
 };
 
-const casesHTMLMap : {[key: string]: HTMLElement;} = {};
+const squaresHTMLMap : {[key: string]: HTMLElement;} = {};
 
 // Dom manipulation functions
 
-function displayLabyrinthe(labyrinthe: Labyrinthe) {
-  const size = labyrinthe.size;
-  const cases = labyrinthe.cases;
+function displayLabyrinth(labyrinth: Labyrinth) {
+  const size = labyrinth.size;
+  const squares = labyrinth.squares;
   // Empty the table
-  htmlElements.tableau!.innerHTML = "";
+  htmlElements.table!.innerHTML = "";
   for (let i = 0; i < size.height; i++) {
     const row = document.createElement("tr");
     for (let j = 0; j < size.width; j++) {
       const index = i * size.width + j;
-      const case_ = cases[index];
-      row.appendChild(casesHTMLMap[case_.getId()]);
+      const square = squares[index];
+      row.appendChild(squaresHTMLMap[square.getId()]);
     }
-    htmlElements.tableau!.appendChild(row);
+    htmlElements.table!.appendChild(row);
   }
 }
-function fillSelectLabyrinthe() {
+function fillSelectLabyrinth() {
   htmlElements.choixLabyrinthe!.innerHTML = "";
-  const keys = Object.keys(labyrinthes);
+  const keys = Object.keys(labyrinths);
   keys.forEach((key) => {
     const option = document.createElement("option");
     option.value = key;
@@ -57,40 +57,39 @@ function fillSelectLabyrinthe() {
   });
 }
 
-function populateCasesHTMLMap(cases: Case[]) {
+function populateSquaresHTMLMap(squares: Square[]) {
   Logger.log("Populating casesHTMLMap ...")
-  cases.forEach((case_) => {
-    const caseElement = document.createElement("td");
-    caseElement.id = case_.getId();
-    caseElement.classList.add("case");
-    caseElement.classList.add("box");
-    // caseElement.addEventListener("click", onCaseClick);
-    cssMapper.getClassesFromCase(case_).forEach((cssClass) => {
-      cssClass != "" ? caseElement.classList.add(cssClass) : null;
+  squares.forEach((square) => {
+    const squareElement = document.createElement("td");
+    squareElement.id = square.getId();
+    squareElement.classList.add("square");
+    squareElement.classList.add("box");
+    squareElement.addEventListener("click", onCaseClick);
+    cssMapper.getClassesFromSquare(square).forEach((cssClass) => {
+      cssClass != "" ? squareElement.classList.add(cssClass) : null;
     });
-    Logger.log("Adding caseElement", caseElement, "to casesHTMLMap")
-    casesHTMLMap[case_.getId()] = caseElement;
+    Logger.log("Adding caseElement", squareElement, "to squaresHTMLMap")
+    squaresHTMLMap[square.getId()] = squareElement;
   });
-  Logger.log("Finished populating caseHTMLMap : ", casesHTMLMap);
+  Logger.log("Finished populating caseHTMLMap : ", squaresHTMLMap);
 }
 // Event handlers
 
-function onSelectTailleChange($event: Event) {
+function onSelectSizeChange($event: Event) {
   const target = $event.target as HTMLSelectElement;
   const size = parseInt(target.value);
-  labyrintheService.getAllLabyrinthesOfSize(size).then((labs) => {
-    Logger.info("Labyrinthes", labs);
-    labyrinthes = labs;
-    fillSelectLabyrinthe();
+  labyrinthService.getAllLabyrinthsOfSize(size).then((labs) => {
+    labyrinths = labs;
+    fillSelectLabyrinth();
     htmlElements.choixLabyrinthe!.dispatchEvent(new Event("change"));
   });
 }
 
-function onSelectLabyrintheChange($event: Event) {
+function onSelectLabyrinthChange($event: Event) {
   const target = $event.target as HTMLSelectElement;
-  const labyrinthe = labyrinthes[target.value];
-  populateCasesHTMLMap(labyrinthe.cases);
-  displayLabyrinthe(labyrinthe);
+  const labyrinthe = labyrinths[target.value];
+  populateSquaresHTMLMap(labyrinthe.squares);
+  displayLabyrinth(labyrinthe);
 }
 
 function treeSolver() {
@@ -115,16 +114,16 @@ function onCaseClick($event: Event) {
 
 async function main() {
   const sizes = 25;
-  htmlElements.selectTaille!.addEventListener("change", onSelectTailleChange);
+  htmlElements.selectSize!.addEventListener("change", onSelectSizeChange);
   // Trigger the event (select size 3 by default)
-  htmlElements.choixLabyrinthe!.addEventListener("change", onSelectLabyrintheChange);
+  htmlElements.choixLabyrinthe!.addEventListener("change", onSelectLabyrinthChange);
   for (let i = 2; i < sizes; i++) {
     const option = document.createElement("option");
     option.value = (i + 1).toString();
     option.innerText = (i + 1).toString();
-    htmlElements.selectTaille!.appendChild(option);
+    htmlElements.selectSize!.appendChild(option);
   }
-  htmlElements.selectTaille!.dispatchEvent(new Event("change"));
+  htmlElements.selectSize!.dispatchEvent(new Event("change"));
 }
 
 

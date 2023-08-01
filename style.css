@@ -4,9 +4,9 @@
   --table-background: #8438cc;
   --page-color: #6f2eaa;
   --case-color: #c4bbcc;
-  --entree-color: #fcf235;
+  --entrance-color: #fcf235;
   --case-default-border: #420977 dotted 1px;
-  --sortie-color: #f7343e;
+  --exit-color: #f7343e;
   --select-color: #c4bbcc;
   --select-arrow-color: #f7343e;
   --wall-border: #520c94 solid 5px;
@@ -73,9 +73,9 @@ table {
   margin-top: 50px;
 }
 
-/* cases */
+/* Squares classes */
 
-.case {
+.square {
   background-color: var(--case-color);
   border-collapse: inherit;
   border: var(--case-default-border);
@@ -83,27 +83,27 @@ table {
   width: 5vh;
 }
 
-.entree {
-  background-color: var(--entree-color);
+.entrance {
+  background-color: var(--entrance-color);
 }
 
-.sortie {
-  background-color: var(--sortie-color);
+.exit {
+  background-color: var(--exit-color);
 }
 
-.mur-haut {
+.wall-top{
   border-top: var(--wall-border);
 }
 
-.mur-bas {
+.wall-bottom {
   border-bottom: var(--wall-border);
 }
 
-.mur-gauche {
+.wall-left {
   border-left: var(--wall-border);
 }
 
-.mur-droite {
+.wall-right {
   border-right: var(--wall-border);
 }
 

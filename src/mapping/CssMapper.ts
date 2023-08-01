@@ -1,15 +1,15 @@
-import { Case } from "../model/Case";
+import { Square } from "../model/Square";
 
 export class CssMapper{
 
-    getClassesFromCase(case_: Case): string[] {
+    getClassesFromSquare(square: Square): string[] {
         const classes: string[] = [];
-        classes.push(case_.walls.top ? "mur-haut" : "");
-        classes.push(case_.walls.right ? "mur-droit" : "");
-        classes.push(case_.walls.bottom ? "mur-bas" : "");
-        classes.push(case_.walls.left ? "mur-gauche" : "");
-        classes.push(case_.exit ? "sortie" : "");
-        classes.push(case_.entrance ? "entree" : "");
+        classes.push(square.walls.top ? "wall-top" : "");
+        classes.push(square.walls.right ? "wall-right" : "");
+        classes.push(square.walls.bottom ? "wall-down" : "");
+        classes.push(square.walls.left ? "wall-left" : "");
+        classes.push(square.exit ? "exit" : "");
+        classes.push(square.entrance ? "entrance" : "");
         return classes;
     }      
 

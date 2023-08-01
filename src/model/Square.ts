@@ -1,6 +1,6 @@
 import { Position } from "./Position";
 
-export class Case{
+export class Square{
     posX : number;
     posY : number;
     walls : {
