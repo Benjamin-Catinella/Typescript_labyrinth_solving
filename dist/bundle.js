@@ -2,6 +2,36 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/mapping/CssMapper.ts":
+/*!**********************************!*\
+  !*** ./src/mapping/CssMapper.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CssMapper: () => (/* binding */ CssMapper)
+/* harmony export */ });
+var CssMapper = /** @class */ (function () {
+    function CssMapper() {
+    }
+    CssMapper.prototype.getClassesFromCase = function (case_) {
+        var classes = [];
+        classes.push(case_.walls.top ? "mur-haut" : "");
+        classes.push(case_.walls.right ? "mur-droit" : "");
+        classes.push(case_.walls.bottom ? "mur-bas" : "");
+        classes.push(case_.walls.left ? "mur-gauche" : "");
+        classes.push(case_.exit ? "sortie" : "");
+        classes.push(case_.entrance ? "entree" : "");
+        return classes.join(" ");
+    };
+    return CssMapper;
+}());
+
+
+
+/***/ }),
+
 /***/ "./src/mapping/JsonMapper.ts":
 /*!***********************************!*\
   !*** ./src/mapping/JsonMapper.ts ***!
@@ -257,13 +287,9 @@ var __webpack_exports__ = {};
   \*********************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _service_LabyrintheService__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./service/LabyrintheService */ "./src/service/LabyrintheService.ts");
+/* harmony import */ var _mapping_CssMapper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mapping/CssMapper */ "./src/mapping/CssMapper.ts");
 /**
- * Programme de génération et completion de labyrinthe
- *
- * Notes:
- *
- * Quelques idées pour le type de data structure à utiliser pour les cases du labyrinthe:
- *
+ * Projet de parcours de labyrinthes
  */
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -302,8 +328,13 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
     }
 };
 
+
+// Services
 var labyrintheService = new _service_LabyrintheService__WEBPACK_IMPORTED_MODULE_0__.LabyrintheService();
+var cssMapper = new _mapping_CssMapper__WEBPACK_IMPORTED_MODULE_1__.CssMapper();
+// Variables
 var labyrinthes;
+// Constants
 var htmlElements = {
     tableau: document.getElementById("tableauLabyrinthe"),
     selectTaille: document.getElementById("tailleLabyrinthe"),
@@ -312,16 +343,7 @@ var htmlElements = {
 var labyrintheElementsTemplates = {
     case: '<td class="case box %class%"></td>',
 };
-function getClassesFromCase(case_) {
-    var classes = [];
-    classes.push(case_.walls.top ? "mur-haut" : "");
-    classes.push(case_.walls.right ? "mur-droit" : "");
-    classes.push(case_.walls.bottom ? "mur-bas" : "");
-    classes.push(case_.walls.left ? "mur-gauche" : "");
-    classes.push(case_.exit ? "sortie" : "");
-    classes.push(case_.entrance ? "entree" : "");
-    return classes.join(" ");
-}
+// Dom manipulation functions
 function displayLabyrinthe(labyrinthe) {
     var size = labyrinthe.size;
     var cases = labyrinthe.cases;
@@ -331,22 +353,37 @@ function displayLabyrinthe(labyrinthe) {
         for (var j = 0; j < size.width; j++) {
             var index = i * size.width + j;
             var case_ = cases[index];
-            html += labyrintheElementsTemplates.case.replace("%class%", getClassesFromCase(case_));
+            html += labyrintheElementsTemplates.case.replace("%class%", cssMapper.getClassesFromCase(case_));
         }
         html += "</tr>";
     }
     html += "</table>";
     htmlElements.tableau.innerHTML = html;
 }
-function onSelectLabyrintheChange($event) {
+function fillSelectLabyrinthe() {
+    htmlElements.choixLabyrinthe.innerHTML = "";
+    var keys = Object.keys(labyrinthes);
+    keys.forEach(function (key) {
+        var option = document.createElement("option");
+        option.value = key;
+        option.innerText = key;
+        htmlElements.choixLabyrinthe.appendChild(option);
+    });
+    displayLabyrinthe(labyrinthes[keys[0]]);
 }
+// Event handlers
 function onSelectTailleChange($event) {
     var target = $event.target;
     var size = parseInt(target.value);
     labyrintheService.getAllLabyrinthesOfSize(size).then(function (labs) {
         labyrinthes = labs;
-        displayLabyrinthe(labyrinthes["ex-1"]);
+        fillSelectLabyrinthe();
     });
+}
+function onSelectLabyrintheChange($event) {
+    var target = $event.target;
+    var labyrinthe = labyrinthes[target.value];
+    displayLabyrinthe(labyrinthe);
 }
 function main() {
     return __awaiter(this, void 0, void 0, function () {
@@ -354,6 +391,7 @@ function main() {
         return __generator(this, function (_a) {
             sizes = 25;
             htmlElements.selectTaille.addEventListener("change", onSelectTailleChange);
+            // Trigger the event (select size 3 by default)
             htmlElements.choixLabyrinthe.addEventListener("change", onSelectLabyrintheChange);
             for (i = 2; i < sizes; i++) {
                 option = document.createElement("option");
@@ -361,9 +399,8 @@ function main() {
                 option.innerText = (i + 1).toString();
                 htmlElements.selectTaille.appendChild(option);
             }
-            labyrintheService.getLabyrintheOfSize(25).then(function (labyrinthe) {
-                displayLabyrinthe(labyrinthe);
-            });
+            htmlElements.selectTaille.dispatchEvent(new Event("change"));
+            htmlElements.choixLabyrinthe.dispatchEvent(new Event("change"));
             return [2 /*return*/];
         });
     });
