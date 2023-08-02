@@ -272,6 +272,11 @@ class Labyrinth {
         this.size = size;
         this.squares = squares;
     }
+    reset() {
+        this.squares.forEach(square => {
+            square.visited = false;
+        });
+    }
 }
 
 
@@ -554,7 +559,7 @@ function populateSquaresHTMLMap(squares) {
         squareElement.id = square.getId();
         squareElement.classList.add("square");
         squareElement.classList.add("box");
-        squareElement.addEventListener("click", onCaseClick);
+        squareElement.addEventListener("click", onSquareClick);
         cssMapper.getClassesFromSquare(square).forEach((cssClass) => {
             cssClass != "" ? squareElement.classList.add(cssClass) : null;
         });
@@ -576,6 +581,7 @@ function onSelectSizeChange($event) {
 function onSelectLabyrinthChange($event) {
     const target = $event.target;
     const labyrinthe = labyrinths[target.value];
+    selectedLabyrinth === null || selectedLabyrinth === void 0 ? void 0 : selectedLabyrinth.reset();
     selectedLabyrinth = labyrinthe;
     populateSquaresHTMLMap(labyrinthe.squares);
     displayLabyrinth(labyrinthe);
@@ -583,6 +589,7 @@ function onSelectLabyrinthChange($event) {
 function onClickRunSolver($event) {
     var _a;
     if (selectedLabyrinth) {
+        selectedLabyrinth.reset();
         (_a = labyrinthSolver.BFS(selectedLabyrinth.squares)) === null || _a === void 0 ? void 0 : _a.forEach((square) => {
             const squareElement = squaresHTMLMap[square.getId()];
             if (!squareElement.classList.contains("exit") && !squareElement.classList.contains("entrance")) {
@@ -595,13 +602,14 @@ function onCheckboxChange($event) {
     labyrinthSolver.debug = $event.target.checked;
 }
 // Change background color of the clicked case
-function onCaseClick($event) {
+function onSquareClick($event) {
     const target = $event.target;
     target.classList.toggle("red");
 }
-function main() {
+function init() {
     return __awaiter(this, void 0, void 0, function* () {
         const sizes = 25;
+        // Init dom elements
         htmlElements.selectSize.addEventListener("change", onSelectSizeChange);
         htmlElements.choixLabyrinthe.addEventListener("change", onSelectLabyrinthChange);
         htmlElements.runSolverButton.addEventListener("click", onClickRunSolver);
@@ -613,9 +621,10 @@ function main() {
             htmlElements.selectSize.appendChild(option);
         }
         htmlElements.selectSize.dispatchEvent(new Event("change"));
+        labyrinthSolver.debug = htmlElements.debugCheckbox.checked;
     });
 }
-main();
+init();
 
 })();
 

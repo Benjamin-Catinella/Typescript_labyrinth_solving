@@ -12,5 +12,9 @@ export class Labyrinth{
         this.squares = squares;
     }
 
-
+    reset(){
+        this.squares.forEach(square => {
+            square.visited = false;
+        });
+    }
 }

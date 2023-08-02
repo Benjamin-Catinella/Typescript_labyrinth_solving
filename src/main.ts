@@ -26,7 +26,7 @@ const htmlElements = {
   selectSize: document.getElementById("sizeSelect"),
   choixLabyrinthe: document.getElementById("labyrinthSelect"),
   runSolverButton: document.getElementById("runSolver"),
-  debugCheckbox: document.getElementById("debugCheckbox"),
+  debugCheckbox: document.getElementById("debugCheckbox") as HTMLInputElement,
 };
 
 const squaresHTMLMap : {[key: string]: HTMLElement;} = {};
@@ -66,7 +66,7 @@ function populateSquaresHTMLMap(squares: Square[]) {
     squareElement.id = square.getId();
     squareElement.classList.add("square");
     squareElement.classList.add("box");
-    squareElement.addEventListener("click", onCaseClick);
+    squareElement.addEventListener("click", onSquareClick);
     cssMapper.getClassesFromSquare(square).forEach((cssClass) => {
       cssClass != "" ? squareElement.classList.add(cssClass) : null;
     });
@@ -90,6 +90,7 @@ function onSelectSizeChange($event: Event) {
 function onSelectLabyrinthChange($event: Event) {
   const target = $event.target as HTMLSelectElement;
   const labyrinthe = labyrinths[target.value];
+  selectedLabyrinth?.reset();
   selectedLabyrinth = labyrinthe;
   populateSquaresHTMLMap(labyrinthe.squares);
   displayLabyrinth(labyrinthe);
@@ -97,6 +98,7 @@ function onSelectLabyrinthChange($event: Event) {
 
 function onClickRunSolver($event: Event){
   if(selectedLabyrinth){
+    selectedLabyrinth.reset();
     labyrinthSolver.BFS(selectedLabyrinth.squares)?.forEach((square) => {
       const squareElement = squaresHTMLMap[square.getId()];
       if(!squareElement.classList.contains("exit") && !squareElement.classList.contains("entrance")){
@@ -109,13 +111,14 @@ function onCheckboxChange($event : Event){
   labyrinthSolver.debug = ($event.target as HTMLInputElement).checked;
 }
 // Change background color of the clicked case
-function onCaseClick($event: Event) {
+function onSquareClick($event: Event) {
   const target = $event.target as HTMLElement;
   target.classList.toggle("red");
 }
 
-async function main() {
+async function init() {
   const sizes = 25;
+  // Init dom elements
   htmlElements.selectSize!.addEventListener("change", onSelectSizeChange);
   htmlElements.choixLabyrinthe!.addEventListener("change", onSelectLabyrinthChange);
   htmlElements.runSolverButton!.addEventListener("click", onClickRunSolver);
@@ -127,7 +130,8 @@ async function main() {
     htmlElements.selectSize!.appendChild(option);
   }
   htmlElements.selectSize!.dispatchEvent(new Event("change"));
+  labyrinthSolver.debug = htmlElements.debugCheckbox!.checked;
 }
 
 
-main();
+init();
