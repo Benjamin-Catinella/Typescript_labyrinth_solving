@@ -2,7 +2,7 @@ import { Square } from '../model/Square';
 import { Labyrinth } from '../model/Labyrinth';
 export class JsonMapper {
 
-  public toLabyrinth(json: any, size: number) {
+  public toLabyrinth(json: any, size: number, id: string) {
     const _size = {
       width: size,
       height: size,
@@ -11,7 +11,7 @@ export class JsonMapper {
     for (let i = 0; i < json.length; i++) {
       cases.push(this.toSquare(json[i]));
     }
-    return new Labyrinth(_size, cases);
+    return new Labyrinth(id, _size, cases);
   }
 
   toSquare(json: any) {

@@ -7,7 +7,7 @@ import { LabyrinthService } from "./service/LabyrinthService";
 import { CssMapper } from "./mapping/CssMapper";
 import { Square } from "./model/Square";
 import { Logger } from "./utils/Logger";
-import { LabyrinthSolver } from "./mapping/LabyrinthSolver";
+import { LabyrinthSolver } from "./algorithm/LabyrinthSolver";
 
 // Services
 
@@ -99,7 +99,7 @@ function onSelectLabyrinthChange($event: Event) {
 function onClickRunSolver($event: Event){
   if(selectedLabyrinth){
     selectedLabyrinth.reset();
-    labyrinthSolver.BFS(selectedLabyrinth.squares)?.forEach((square) => {
+    labyrinthSolver.BFS(selectedLabyrinth)?.forEach((square) => {
       const squareElement = squaresHTMLMap[square.getId()];
       if(!squareElement.classList.contains("exit") && !squareElement.classList.contains("entrance")){
         squareElement.classList.add("solution");

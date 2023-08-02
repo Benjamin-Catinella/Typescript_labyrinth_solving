@@ -2,78 +2,10 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/mapping/CssMapper.ts":
-/*!**********************************!*\
-  !*** ./src/mapping/CssMapper.ts ***!
-  \**********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   CssMapper: () => (/* binding */ CssMapper)
-/* harmony export */ });
-class CssMapper {
-    getClassesFromSquare(square) {
-        const classes = [];
-        classes.push(square.walls.top ? "wall-top" : "");
-        classes.push(square.walls.right ? "wall-right" : "");
-        classes.push(square.walls.bottom ? "wall-down" : "");
-        classes.push(square.walls.left ? "wall-left" : "");
-        classes.push(square.exit ? "exit" : "");
-        classes.push(square.entrance ? "entrance" : "");
-        return classes;
-    }
-}
-
-
-/***/ }),
-
-/***/ "./src/mapping/JsonMapper.ts":
-/*!***********************************!*\
-  !*** ./src/mapping/JsonMapper.ts ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   JsonMapper: () => (/* binding */ JsonMapper)
-/* harmony export */ });
-/* harmony import */ var _model_Square__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../model/Square */ "./src/model/Square.ts");
-/* harmony import */ var _model_Labyrinth__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../model/Labyrinth */ "./src/model/Labyrinth.ts");
-
-
-class JsonMapper {
-    toLabyrinth(json, size) {
-        const _size = {
-            width: size,
-            height: size,
-        };
-        const cases = [];
-        for (let i = 0; i < json.length; i++) {
-            cases.push(this.toSquare(json[i]));
-        }
-        return new _model_Labyrinth__WEBPACK_IMPORTED_MODULE_1__.Labyrinth(_size, cases);
-    }
-    toSquare(json) {
-        const entrance = json.entrance ? true : false;
-        const exit = json.exit ? true : false;
-        const walls = {
-            top: json.walls[0],
-            right: json.walls[1],
-            bottom: json.walls[2],
-            left: json.walls[3],
-        };
-        return new _model_Square__WEBPACK_IMPORTED_MODULE_0__.Square(json.posX, json.posY, walls, exit, entrance);
-    }
-}
-
-
-/***/ }),
-
-/***/ "./src/mapping/LabyrinthSolver.ts":
-/*!****************************************!*\
-  !*** ./src/mapping/LabyrinthSolver.ts ***!
-  \****************************************/
+/***/ "./src/algorithm/LabyrinthSolver.ts":
+/*!******************************************!*\
+  !*** ./src/algorithm/LabyrinthSolver.ts ***!
+  \******************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -82,28 +14,27 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _model_Position__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../model/Position */ "./src/model/Position.ts");
 /* harmony import */ var _utils_Logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Logger */ "./src/utils/Logger.ts");
+/* harmony import */ var _model_Step__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../model/Step */ "./src/model/Step.ts");
+/* harmony import */ var _service_StepService__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../service/StepService */ "./src/service/StepService.ts");
+/* harmony import */ var _model_StepAction__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../model/StepAction */ "./src/model/StepAction.ts");
+
+
+
 
 
 class AdjacentSquares {
 }
 /*
-    The solver needs to return a stack of moves to play for the view to use.
-    The idea is that if we have a stack like this :
-    [
-        entrance,
-        square1,
-        ..2,
-        ..3,
-        ..4,
-        ..5,
-        ..,
-        exit
-    ]
-    The view can then process this stack as needed for animations/coloring/maybe timeline and such
+    The solver needs to return a detailed stack of steps taken to solve the labyrinth
+    The Step class should contain the following information:
+    - The square where the step was taken
+    - What action was taken, visit or backtracking, or both
+
     */
 class LabyrinthSolver {
     constructor() {
         this.debug = false;
+        this.stepService = _service_StepService__WEBPACK_IMPORTED_MODULE_3__.StepService.getInstance();
     }
     /**
      * Finds the adjacent squares to the given square looping around the labyrinth (top, right, bottom, left)
@@ -173,8 +104,9 @@ class LabyrinthSolver {
         });
         return adjacentSquares;
     }
-    getPossibleMovesInAdjacentSquares(square, adjacent) {
+    getPossibleMoves(square, squaresList) {
         const possibleMoves = [];
+        const adjacent = this.findAdjacentSquaresTo(square, squaresList);
         if (adjacent.top) {
             !(square.walls.top || adjacent.top.walls.bottom) &&
                 !adjacent.top.isVisited()
@@ -205,7 +137,7 @@ class LabyrinthSolver {
         _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Solving labyrinth using DFS", labyrinth);
         const stack = [];
         // Find entrance square
-        const entrance = labyrinth.find((square) => square.entrance);
+        const entrance = labyrinth.squares.find((square) => square.entrance);
         if (!entrance) {
             throw new Error("No entrance found");
         }
@@ -223,11 +155,12 @@ class LabyrinthSolver {
         count++; // Debug only
         if (!currentSquare.isVisited()) {
             currentSquare.visit();
+            this.stepService.labyrinthSteps[labyrinth.id].push(new _model_Step__WEBPACK_IMPORTED_MODULE_2__.Step(currentSquare, _model_StepAction__WEBPACK_IMPORTED_MODULE_4__.StepAction.VISIT, count));
         }
         if (currentSquare.exit) {
             return stack;
         }
-        const possibleMoves = this.getPossibleMovesInAdjacentSquares(currentSquare, this.findAdjacentSquaresTo(currentSquare, labyrinth));
+        const possibleMoves = this.getPossibleMoves(currentSquare, labyrinth.squares);
         if (possibleMoves.length == 0) {
             stack.pop();
             return stack;
@@ -239,6 +172,7 @@ class LabyrinthSolver {
             if (newStack.length == 0) {
                 if (this.debug)
                     (_a = document.getElementById(move.getId())) === null || _a === void 0 ? void 0 : _a.classList.add("purple"); // Debug only
+                this.stepService.labyrinthSteps[labyrinth.id].push(new _model_Step__WEBPACK_IMPORTED_MODULE_2__.Step(currentSquare, _model_StepAction__WEBPACK_IMPORTED_MODULE_4__.StepAction.BACKTRACK, count));
                 stack.pop();
             }
             // Found exit
@@ -257,6 +191,74 @@ class LabyrinthSolver {
 
 /***/ }),
 
+/***/ "./src/mapping/CssMapper.ts":
+/*!**********************************!*\
+  !*** ./src/mapping/CssMapper.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CssMapper: () => (/* binding */ CssMapper)
+/* harmony export */ });
+class CssMapper {
+    getClassesFromSquare(square) {
+        const classes = [];
+        classes.push(square.walls.top ? "wall-top" : "");
+        classes.push(square.walls.right ? "wall-right" : "");
+        classes.push(square.walls.bottom ? "wall-down" : "");
+        classes.push(square.walls.left ? "wall-left" : "");
+        classes.push(square.exit ? "exit" : "");
+        classes.push(square.entrance ? "entrance" : "");
+        return classes;
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/mapping/JsonMapper.ts":
+/*!***********************************!*\
+  !*** ./src/mapping/JsonMapper.ts ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   JsonMapper: () => (/* binding */ JsonMapper)
+/* harmony export */ });
+/* harmony import */ var _model_Square__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../model/Square */ "./src/model/Square.ts");
+/* harmony import */ var _model_Labyrinth__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../model/Labyrinth */ "./src/model/Labyrinth.ts");
+
+
+class JsonMapper {
+    toLabyrinth(json, size, id) {
+        const _size = {
+            width: size,
+            height: size,
+        };
+        const cases = [];
+        for (let i = 0; i < json.length; i++) {
+            cases.push(this.toSquare(json[i]));
+        }
+        return new _model_Labyrinth__WEBPACK_IMPORTED_MODULE_1__.Labyrinth(id, _size, cases);
+    }
+    toSquare(json) {
+        const entrance = json.entrance ? true : false;
+        const exit = json.exit ? true : false;
+        const walls = {
+            top: json.walls[0],
+            right: json.walls[1],
+            bottom: json.walls[2],
+            left: json.walls[3],
+        };
+        return new _model_Square__WEBPACK_IMPORTED_MODULE_0__.Square(json.posX, json.posY, walls, exit, entrance);
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/model/Labyrinth.ts":
 /*!********************************!*\
   !*** ./src/model/Labyrinth.ts ***!
@@ -268,7 +270,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   Labyrinth: () => (/* binding */ Labyrinth)
 /* harmony export */ });
 class Labyrinth {
-    constructor(size, squares) {
+    constructor(id, size, squares) {
+        this.id = id;
         this.size = size;
         this.squares = squares;
     }
@@ -343,6 +346,46 @@ class Square {
 
 /***/ }),
 
+/***/ "./src/model/Step.ts":
+/*!***************************!*\
+  !*** ./src/model/Step.ts ***!
+  \***************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Step: () => (/* binding */ Step)
+/* harmony export */ });
+class Step {
+    constructor(square, action, number) {
+        this.square = square;
+        this.action = action;
+        this.number = number;
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/model/StepAction.ts":
+/*!*********************************!*\
+  !*** ./src/model/StepAction.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   StepAction: () => (/* binding */ StepAction)
+/* harmony export */ });
+var StepAction;
+(function (StepAction) {
+    StepAction["VISIT"] = "VISIT";
+    StepAction["BACKTRACK"] = "BACKTRACK";
+})(StepAction || (StepAction = {}));
+
+
+/***/ }),
+
 /***/ "./src/service/LabyrinthService.ts":
 /*!*****************************************!*\
   !*** ./src/service/LabyrinthService.ts ***!
@@ -374,21 +417,40 @@ class LabyrinthService {
             return fetch(url).then((response) => response.json());
         });
     }
-    getLabyrinthOfSize(size) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const json = yield this.getListOfLabyrinthsOfSizeFromAPI(size);
-            return this.jsonMapper.toLabyrinth(json["ex-0"], size);
-        });
-    }
     getAllLabyrinthsOfSize(size) {
         return __awaiter(this, void 0, void 0, function* () {
             const json = yield this.getListOfLabyrinthsOfSizeFromAPI(size);
             const labyrinthes = {};
             for (const key in json) {
-                labyrinthes[key] = this.jsonMapper.toLabyrinth(json[key], size);
+                labyrinthes[key] = this.jsonMapper.toLabyrinth(json[key], size, key);
             }
             return labyrinthes;
         });
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/service/StepService.ts":
+/*!************************************!*\
+  !*** ./src/service/StepService.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   StepService: () => (/* binding */ StepService)
+/* harmony export */ });
+class StepService {
+    constructor() {
+        this.labyrinthSteps = {};
+    }
+    static getInstance() {
+        if (!StepService.self) {
+            StepService.self = new StepService();
+        }
+        return StepService.self;
     }
 }
 
@@ -493,7 +555,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _service_LabyrinthService__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./service/LabyrinthService */ "./src/service/LabyrinthService.ts");
 /* harmony import */ var _mapping_CssMapper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mapping/CssMapper */ "./src/mapping/CssMapper.ts");
 /* harmony import */ var _utils_Logger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Logger */ "./src/utils/Logger.ts");
-/* harmony import */ var _mapping_LabyrinthSolver__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./mapping/LabyrinthSolver */ "./src/mapping/LabyrinthSolver.ts");
+/* harmony import */ var _algorithm_LabyrinthSolver__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./algorithm/LabyrinthSolver */ "./src/algorithm/LabyrinthSolver.ts");
 /**
  * Projet de parcours de labyrinthes
  */
@@ -513,7 +575,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 // Services
 const labyrinthService = new _service_LabyrinthService__WEBPACK_IMPORTED_MODULE_0__.LabyrinthService();
 const cssMapper = new _mapping_CssMapper__WEBPACK_IMPORTED_MODULE_1__.CssMapper();
-const labyrinthSolver = new _mapping_LabyrinthSolver__WEBPACK_IMPORTED_MODULE_3__.LabyrinthSolver();
+const labyrinthSolver = new _algorithm_LabyrinthSolver__WEBPACK_IMPORTED_MODULE_3__.LabyrinthSolver();
 // Variables
 let labyrinths;
 let selectedLabyrinth;
@@ -590,7 +652,7 @@ function onClickRunSolver($event) {
     var _a;
     if (selectedLabyrinth) {
         selectedLabyrinth.reset();
-        (_a = labyrinthSolver.BFS(selectedLabyrinth.squares)) === null || _a === void 0 ? void 0 : _a.forEach((square) => {
+        (_a = labyrinthSolver.BFS(selectedLabyrinth)) === null || _a === void 0 ? void 0 : _a.forEach((square) => {
             const squareElement = squaresHTMLMap[square.getId()];
             if (!squareElement.classList.contains("exit") && !squareElement.classList.contains("entrance")) {
                 squareElement.classList.add("solution");

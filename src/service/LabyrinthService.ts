@@ -8,16 +8,12 @@ export class LabyrinthService {
     return fetch(url).then((response) => response.json());
   }
 
-  public async getLabyrinthOfSize(size: number): Promise<Labyrinth> {
-    const json = await this.getListOfLabyrinthsOfSizeFromAPI(size);
-    return this.jsonMapper.toLabyrinth(json["ex-0"], size);
-  }
 
   public async getAllLabyrinthsOfSize(size: number): Promise<{[key: string]: Labyrinth;}> {
     const json = await this.getListOfLabyrinthsOfSizeFromAPI(size);
     const labyrinthes: {[key: string]: Labyrinth;} = {};
     for (const key in json) {
-      labyrinthes[key] = this.jsonMapper.toLabyrinth(json[key], size);
+      labyrinthes[key] = this.jsonMapper.toLabyrinth(json[key], size, key);
     }
     return labyrinthes;
   }

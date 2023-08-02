@@ -1,6 +1,10 @@
 import { Square } from '../model/Square';
 import { Position } from "../model/Position";
 import { Logger } from "../utils/Logger";
+import { Step } from '../model/Step';
+import { StepService } from '../service/StepService';
+import { Labyrinth } from '../model/Labyrinth';
+import { StepAction } from '../model/StepAction';
 
 class AdjacentSquares {
     top: Square | undefined;
@@ -10,23 +14,15 @@ class AdjacentSquares {
 }
 
 /* 
-    The solver needs to return a stack of moves to play for the view to use.
-    The idea is that if we have a stack like this :
-    [
-        entrance,
-        square1,
-        ..2,
-        ..3,
-        ..4,
-        ..5,
-        ..,
-        exit
-    ] 
-    The view can then process this stack as needed for animations/coloring/maybe timeline and such
+    The solver needs to return a detailed stack of steps taken to solve the labyrinth
+    The Step class should contain the following information:
+    - The square where the step was taken
+    - What action was taken, visit or backtracking, or both
+
     */
 export class LabyrinthSolver {
     debug : boolean = false;
-
+    readonly stepService : StepService = StepService.getInstance();
     /**
      * Finds the adjacent squares to the given square looping around the labyrinth (top, right, bottom, left)
      * @param square
@@ -109,11 +105,12 @@ export class LabyrinthSolver {
         return adjacentSquares;
     }
 
-    getPossibleMovesInAdjacentSquares(
+    getPossibleMoves(
         square: Square,
-        adjacent: AdjacentSquares
+        squaresList: Square[]
     ): Square[] {
         const possibleMoves: Square[] = [];
+        const adjacent = this.findAdjacentSquaresTo(square, squaresList);
         if (adjacent.top) {
             !(square.walls.top || adjacent.top.walls.bottom) &&
             !adjacent.top.isVisited()
@@ -141,12 +138,12 @@ export class LabyrinthSolver {
         return possibleMoves;
     }
 
-    BFS(labyrinth: Square[]): Square[] | undefined {
+    BFS(labyrinth: Labyrinth): Square[] {
         Logger.info("Solving labyrinth using DFS", labyrinth);
         const stack: Square[] = [];
 
         // Find entrance square
-        const entrance = labyrinth.find((square) => square.entrance);
+        const entrance = labyrinth.squares.find((square) => square.entrance);
         if (!entrance) {
             throw new Error("No entrance found");
         }
@@ -156,22 +153,22 @@ export class LabyrinthSolver {
         return this.BFS_rec(stack, labyrinth, 0);
     }
     
-    BFS_rec(stack: Square[], labyrinth: Square[], count: number): Square[] {
+    BFS_rec(stack: Square[], labyrinth: Labyrinth, count: number): Square[] {
         const currentSquare = stack[stack.length - 1];
         const squarehtml = document.getElementById(currentSquare.getId());
-
+        
         if(this.debug) if(squarehtml) squarehtml.innerHTML = count.toString(); count++; // Debug only
+        
         if (!currentSquare.isVisited()) {
             currentSquare.visit();
+            this.stepService.labyrinthSteps[labyrinth.id].push(new Step(currentSquare, StepAction.VISIT, count));
         }
         if (currentSquare.exit) {
             return stack;
         }
 
-        const possibleMoves = this.getPossibleMovesInAdjacentSquares(
-            currentSquare,
-            this.findAdjacentSquaresTo(currentSquare, labyrinth)
-        );
+        const possibleMoves = this.getPossibleMoves(currentSquare, labyrinth.squares);
+
         if (possibleMoves.length == 0) {
             stack.pop();
             return stack;
@@ -183,6 +180,7 @@ export class LabyrinthSolver {
             // Pruned path
             if (newStack.length == 0) {
                 if(this.debug) document.getElementById(move.getId())?.classList.add("purple"); // Debug only
+                this.stepService.labyrinthSteps[labyrinth.id].push(new Step(currentSquare, StepAction.BACKTRACK, count));
                 stack.pop();
             }
             // Found exit
