@@ -1,6 +1,7 @@
 import { Position } from "./Position";
 
-export class Square{
+export class Square {
+    visited = false;
     posX : number;
     posY : number;
     walls : {
@@ -32,6 +33,14 @@ export class Square{
 
     getId(): string{
         return `${this.posX}-${this.posY}`;
+    }
+
+    isVisited() : boolean{
+        return this.visited;
+    }
+
+    visit(): void {
+        this.visited = true;
     }
 }
 

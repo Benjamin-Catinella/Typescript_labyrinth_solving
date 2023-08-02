@@ -5,26 +5,27 @@
 import { Labyrinth } from "./model/Labyrinth";
 import { LabyrinthService } from "./service/LabyrinthService";
 import { CssMapper } from "./mapping/CssMapper";
-import { NodeSquareMapper } from './mapping/NodeCaseMapper';
 import { Square } from "./model/Square";
 import { Logger } from "./utils/Logger";
+import { LabyrinthSolver } from "./mapping/LabyrinthSolver";
 
 // Services
 
 const labyrinthService = new LabyrinthService();
 const cssMapper = new CssMapper();
-const nodeSquareMapper = new NodeSquareMapper();
+const labyrinthSolver: LabyrinthSolver = new LabyrinthSolver();
 
 // Variables
 
 let labyrinths : {[key: string]: Labyrinth;};
-
+let selectedLabyrinth : Labyrinth | undefined;
 // Constants
 
 const htmlElements = {
   table: document.getElementById("labyrinthTable"),
   selectSize: document.getElementById("sizeSelect"),
   choixLabyrinthe: document.getElementById("labyrinthSelect"),
+  runSolverButton: document.getElementById("runSolver"),
 };
 
 const squaresHTMLMap : {[key: string]: HTMLElement;} = {};
@@ -88,23 +89,17 @@ function onSelectSizeChange($event: Event) {
 function onSelectLabyrinthChange($event: Event) {
   const target = $event.target as HTMLSelectElement;
   const labyrinthe = labyrinths[target.value];
+  selectedLabyrinth = labyrinthe;
   populateSquaresHTMLMap(labyrinthe.squares);
   displayLabyrinth(labyrinthe);
 }
 
-function treeSolver() {
-  /**
-   * Convertir le labyrinth en graphe
-   * Partir de la première node
-   * Si la node est la sortie, finir et remonter nombre de pas 
-   * Si la node a déjà été visitée, remonter 0
-   * Si la node est un cul de sac, remonter 0
-   * Passer à la node suivante
-   */
-
-}
-function treeSolverRecursive() {
-
+function onClickRunSolver($event: Event){
+  if(selectedLabyrinth){
+    labyrinthSolver.solve(selectedLabyrinth.squares)?.forEach((square) => {
+      squaresHTMLMap[square.getId()].classList.add("solution");
+    });
+  }
 }
 // Change background color of the clicked case
 function onCaseClick($event: Event) {
@@ -115,8 +110,8 @@ function onCaseClick($event: Event) {
 async function main() {
   const sizes = 25;
   htmlElements.selectSize!.addEventListener("change", onSelectSizeChange);
-  // Trigger the event (select size 3 by default)
   htmlElements.choixLabyrinthe!.addEventListener("change", onSelectLabyrinthChange);
+  htmlElements.runSolverButton!.addEventListener("click", onClickRunSolver);
   for (let i = 2; i < sizes; i++) {
     const option = document.createElement("option");
     option.value = (i + 1).toString();

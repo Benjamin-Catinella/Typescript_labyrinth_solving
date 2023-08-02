@@ -70,21 +70,45 @@ class JsonMapper {
 
 /***/ }),
 
-/***/ "./src/mapping/NodeCaseMapper.ts":
-/*!***************************************!*\
-  !*** ./src/mapping/NodeCaseMapper.ts ***!
-  \***************************************/
+/***/ "./src/mapping/LabyrinthSolver.ts":
+/*!****************************************!*\
+  !*** ./src/mapping/LabyrinthSolver.ts ***!
+  \****************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   NodeSquareMapper: () => (/* binding */ NodeSquareMapper)
+/* harmony export */   LabyrinthSolver: () => (/* binding */ LabyrinthSolver)
 /* harmony export */ });
 /* harmony import */ var _model_Position__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../model/Position */ "./src/model/Position.ts");
+/* harmony import */ var _utils_Logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Logger */ "./src/utils/Logger.ts");
 
-class NodeSquareMapper {
-    constructor() { }
-    findAdjacentCasesTo(square, squaresList) {
+
+class AdjacentSquares {
+}
+/*
+The solver needs to return a stack of moves to play for the view to use.
+The idea is that if we have a stack like this :
+[
+    entrance,
+    square1,
+    ..2,
+    ..3,
+    ..4,
+    ..5,
+    ..,
+    exit
+]
+The view can then process this stack as needed for animations/coloring/maybe timeline and such
+*/
+class LabyrinthSolver {
+    /**
+     * Finds the adjacent squares to the given square looping around the labyrinth (top, right, bottom, left)
+     * @param square
+     * @param squaresList
+     * @returns
+     */
+    findAdjacentSquaresToLooparound(square, squaresList) {
         const labXLength = squaresList.map((c) => c.posX).reduce((a, b) => Math.max(a, b)) + 1;
         const labYLength = squaresList.map((c) => c.posY).reduce((a, b) => Math.max(a, b)) + 1;
         const offsets = {
@@ -106,6 +130,82 @@ class NodeSquareMapper {
                 square_.getPosition().equals(positions.left));
         });
         return adjacentSquares;
+    }
+    /**
+     * Finds all the adjacent squares to the given square (top, right, bottom, left)
+     * @param square
+     * @param squaresList
+     * @returns
+     */
+    findAdjacentSquaresTo(square, squaresList) {
+        const positions = {
+            top: new _model_Position__WEBPACK_IMPORTED_MODULE_0__.Position(square.posX - 1, square.posY),
+            bottom: new _model_Position__WEBPACK_IMPORTED_MODULE_0__.Position(square.posX + 1, square.posY),
+            right: new _model_Position__WEBPACK_IMPORTED_MODULE_0__.Position(square.posX, square.posY + 1),
+            left: new _model_Position__WEBPACK_IMPORTED_MODULE_0__.Position(square.posX, square.posY - 1),
+        };
+        const adjacentSquares = new AdjacentSquares;
+        squaresList.map((square_) => {
+            square_.getPosition().equals(positions.top) ? adjacentSquares.top = square_ : undefined;
+            square_.getPosition().equals(positions.right) ? adjacentSquares.right = square_ : undefined;
+            square_.getPosition().equals(positions.bottom) ? adjacentSquares.bottom = square_ : undefined;
+            square_.getPosition().equals(positions.left) ? adjacentSquares.left = square_ : undefined;
+        });
+        return adjacentSquares;
+    }
+    getPossibleMovesInAdjacentSquares(square, adjacent) {
+        const possibleMoves = [];
+        if (adjacent.top) {
+            !(square.walls.top || adjacent.top.walls.bottom) && !adjacent.top.isVisited() ? possibleMoves.push(adjacent.top) : null;
+        }
+        if (adjacent.right) {
+            !(square.walls.right || adjacent.right.walls.left) && !adjacent.right.isVisited() ? possibleMoves.push(adjacent.right) : null;
+        }
+        if (adjacent.bottom) {
+            !(square.walls.bottom || adjacent.bottom.walls.top) && !adjacent.bottom.isVisited() ? possibleMoves.push(adjacent.bottom) : null;
+        }
+        if (adjacent.left) {
+            !(square.walls.left || adjacent.left.walls.right) && !adjacent.left.isVisited() ? possibleMoves.push(adjacent.left) : null;
+        }
+        return possibleMoves;
+    }
+    solve(labyrinth) {
+        _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Solving labyrinth", labyrinth);
+        const stack = [];
+        const entrance = labyrinth.find((square) => square.entrance);
+        _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Entrance", entrance);
+        if (!entrance) {
+            throw new Error("No entrance found");
+        }
+        // Find entrance square
+        stack.push(entrance);
+        // Call recursive
+        return this.solveRec(stack, labyrinth);
+    }
+    solveRec(stack, labyrinth) {
+        // Sets as visited
+        const square = stack[stack.length - 1];
+        _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Visiting", square);
+        square.visit();
+        // If no possible moves, dead-end, removes itself from the stack, return; see later for 'win condition'
+        const possibleMoves = this.getPossibleMovesInAdjacentSquares(square, this.findAdjacentSquaresTo(square, labyrinth));
+        if (square.exit) {
+            _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Found exit");
+            return stack;
+        }
+        if (possibleMoves.length == 0) {
+            _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Met dead-end", square);
+            stack.pop();
+            return stack;
+        }
+        // Push the move(s) to the stack and recurse
+        possibleMoves.forEach(move => {
+            stack.push(move);
+            return this.solveRec(stack, labyrinth);
+        });
+        if (stack[stack.length - 1].exit) {
+            return stack;
+        }
     }
 }
 
@@ -169,6 +269,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class Square {
     constructor(posX, posY, walls, exit, entrance) {
+        this.visited = false;
         this.posX = posX;
         this.posY = posY;
         this.walls = walls;
@@ -180,6 +281,12 @@ class Square {
     }
     getId() {
         return `${this.posX}-${this.posY}`;
+    }
+    isVisited() {
+        return this.visited;
+    }
+    visit() {
+        this.visited = true;
     }
 }
 
@@ -335,8 +442,8 @@ var __webpack_exports__ = {};
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _service_LabyrinthService__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./service/LabyrinthService */ "./src/service/LabyrinthService.ts");
 /* harmony import */ var _mapping_CssMapper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mapping/CssMapper */ "./src/mapping/CssMapper.ts");
-/* harmony import */ var _mapping_NodeCaseMapper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./mapping/NodeCaseMapper */ "./src/mapping/NodeCaseMapper.ts");
-/* harmony import */ var _utils_Logger__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/Logger */ "./src/utils/Logger.ts");
+/* harmony import */ var _utils_Logger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Logger */ "./src/utils/Logger.ts");
+/* harmony import */ var _mapping_LabyrinthSolver__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./mapping/LabyrinthSolver */ "./src/mapping/LabyrinthSolver.ts");
 /**
  * Projet de parcours de labyrinthes
  */
@@ -356,14 +463,16 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 // Services
 const labyrinthService = new _service_LabyrinthService__WEBPACK_IMPORTED_MODULE_0__.LabyrinthService();
 const cssMapper = new _mapping_CssMapper__WEBPACK_IMPORTED_MODULE_1__.CssMapper();
-const nodeSquareMapper = new _mapping_NodeCaseMapper__WEBPACK_IMPORTED_MODULE_2__.NodeSquareMapper();
+const labyrinthSolver = new _mapping_LabyrinthSolver__WEBPACK_IMPORTED_MODULE_3__.LabyrinthSolver();
 // Variables
 let labyrinths;
+let selectedLabyrinth;
 // Constants
 const htmlElements = {
     table: document.getElementById("labyrinthTable"),
     selectSize: document.getElementById("sizeSelect"),
     choixLabyrinthe: document.getElementById("labyrinthSelect"),
+    runSolverButton: document.getElementById("runSolver"),
 };
 const squaresHTMLMap = {};
 // Dom manipulation functions
@@ -393,7 +502,7 @@ function fillSelectLabyrinth() {
     });
 }
 function populateSquaresHTMLMap(squares) {
-    _utils_Logger__WEBPACK_IMPORTED_MODULE_3__.Logger.log("Populating casesHTMLMap ...");
+    _utils_Logger__WEBPACK_IMPORTED_MODULE_2__.Logger.log("Populating casesHTMLMap ...");
     squares.forEach((square) => {
         const squareElement = document.createElement("td");
         squareElement.id = square.getId();
@@ -403,10 +512,10 @@ function populateSquaresHTMLMap(squares) {
         cssMapper.getClassesFromSquare(square).forEach((cssClass) => {
             cssClass != "" ? squareElement.classList.add(cssClass) : null;
         });
-        _utils_Logger__WEBPACK_IMPORTED_MODULE_3__.Logger.log("Adding caseElement", squareElement, "to squaresHTMLMap");
+        _utils_Logger__WEBPACK_IMPORTED_MODULE_2__.Logger.log("Adding caseElement", squareElement, "to squaresHTMLMap");
         squaresHTMLMap[square.getId()] = squareElement;
     });
-    _utils_Logger__WEBPACK_IMPORTED_MODULE_3__.Logger.log("Finished populating caseHTMLMap : ", squaresHTMLMap);
+    _utils_Logger__WEBPACK_IMPORTED_MODULE_2__.Logger.log("Finished populating caseHTMLMap : ", squaresHTMLMap);
 }
 // Event handlers
 function onSelectSizeChange($event) {
@@ -421,20 +530,17 @@ function onSelectSizeChange($event) {
 function onSelectLabyrinthChange($event) {
     const target = $event.target;
     const labyrinthe = labyrinths[target.value];
+    selectedLabyrinth = labyrinthe;
     populateSquaresHTMLMap(labyrinthe.squares);
     displayLabyrinth(labyrinthe);
 }
-function treeSolver() {
-    /**
-     * Convertir le labyrinth en graphe
-     * Partir de la première node
-     * Si la node est la sortie, finir et remonter nombre de pas
-     * Si la node a déjà été visitée, remonter 0
-     * Si la node est un cul de sac, remonter 0
-     * Passer à la node suivante
-     */
-}
-function treeSolverRecursive() {
+function onClickRunSolver($event) {
+    var _a;
+    if (selectedLabyrinth) {
+        (_a = labyrinthSolver.solve(selectedLabyrinth.squares)) === null || _a === void 0 ? void 0 : _a.forEach((square) => {
+            squaresHTMLMap[square.getId()].classList.add("solution");
+        });
+    }
 }
 // Change background color of the clicked case
 function onCaseClick($event) {
@@ -445,8 +551,8 @@ function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const sizes = 25;
         htmlElements.selectSize.addEventListener("change", onSelectSizeChange);
-        // Trigger the event (select size 3 by default)
         htmlElements.choixLabyrinthe.addEventListener("change", onSelectLabyrinthChange);
+        htmlElements.runSolverButton.addEventListener("click", onClickRunSolver);
         for (let i = 2; i < sizes; i++) {
             const option = document.createElement("option");
             option.value = (i + 1).toString();
