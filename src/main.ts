@@ -26,6 +26,7 @@ const htmlElements = {
   selectSize: document.getElementById("sizeSelect"),
   choixLabyrinthe: document.getElementById("labyrinthSelect"),
   runSolverButton: document.getElementById("runSolver"),
+  debugCheckbox: document.getElementById("debugCheckbox"),
 };
 
 const squaresHTMLMap : {[key: string]: HTMLElement;} = {};
@@ -96,10 +97,16 @@ function onSelectLabyrinthChange($event: Event) {
 
 function onClickRunSolver($event: Event){
   if(selectedLabyrinth){
-    labyrinthSolver.solve(selectedLabyrinth.squares)?.forEach((square) => {
-      squaresHTMLMap[square.getId()].classList.add("solution");
+    labyrinthSolver.BFS(selectedLabyrinth.squares)?.forEach((square) => {
+      const squareElement = squaresHTMLMap[square.getId()];
+      if(!squareElement.classList.contains("exit") && !squareElement.classList.contains("entrance")){
+        squareElement.classList.add("solution");
+      }
     });
   }
+}
+function onCheckboxChange($event : Event){
+  labyrinthSolver.debug = ($event.target as HTMLInputElement).checked;
 }
 // Change background color of the clicked case
 function onCaseClick($event: Event) {
@@ -112,6 +119,7 @@ async function main() {
   htmlElements.selectSize!.addEventListener("change", onSelectSizeChange);
   htmlElements.choixLabyrinthe!.addEventListener("change", onSelectLabyrinthChange);
   htmlElements.runSolverButton!.addEventListener("click", onClickRunSolver);
+  htmlElements.debugCheckbox!.addEventListener("change", onCheckboxChange);
   for (let i = 2; i < sizes; i++) {
     const option = document.createElement("option");
     option.value = (i + 1).toString();

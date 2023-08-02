@@ -22,6 +22,33 @@ html {
   background-color: var(--page-color);
 }
 
+.wrapper{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+button{
+  width: 10vh;
+  height: 5vh;
+
+  border-radius: 3px;
+  background-color: var(--select-color);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 5px 10px 5px rgba(0, 0, 0, 0.5);
+  transition: 0.25s all ease;
+}
+button:hover{
+  position: relative;
+  top: 2px;
+}
+button:active{
+  position: relative;
+  top: 5px;
+  box-shadow: 0 2px 5px 2px rgba(0, 0, 0, 0.5);
+}
+
 /* Code from https://codepen.io/mrphang/pen/XWxKdpV */
 select {
   /* Reset Select */
@@ -71,6 +98,7 @@ table {
   background-color: var(--table-background);
   margin: auto;
   margin-top: 50px;
+  transition: 0.2s all ease;
 }
 
 /* Squares classes */
@@ -80,7 +108,14 @@ table {
   border-collapse: inherit;
   border: var(--case-default-border);
   height: 5vh;
+  text-align: center;
   width: 5vh;
+  /* For animation */
+  transition: 0.2s all ease;
+}.square:hover{
+  position: relative;
+  border-radius: 5px;
+  transform: scale(1.1);
 }
 
 .entrance {
@@ -112,6 +147,10 @@ table {
 .red {
   background-color: red;
 }
+.purple{
+  background-color: purple;
+}
 .solution{
-  background-color: green;
+  background-color: aquamarine;
+  border-radius: 10px;
 }

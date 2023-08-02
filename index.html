@@ -1,29 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Labyrinthe</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <!-- Labyrinth size select -->
-    <div class="selectContainer">
-      <div class="select">
-        <select id="sizeSelect" ></select>
-      </div>
-      <div class="select">
-        <select id="labyrinthSelect" ></select>
-      </div>
-    </div>
-    <!-- Button to run solver -->
-    <div>
-      <button id="runSolver">Run solver</button>
-    </div>
-    <!-- Labyrinh table -->
-    <div>
-      <table id="labyrinthTable"></table>
-    </div>
-
-    <script src="dist/bundle.js"></script>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Labyrinthe</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="wrapper">
+            <!-- Labyrinth size select -->
+            <div class="selectContainer">
+                <div class="select">
+                    <select id="sizeSelect"></select>
+                </div>
+                <div class="select">
+                    <select id="labyrinthSelect"></select>
+                </div>
+            </div>
+            <!-- Button to run solver -->
+            <div>
+                <button id="runSolver">Run BFS</button>
+                <label>
+                  Debug :
+                  <input type="checkbox" id="debugCheckbox">
+                </label>
+            </div>
+            <!-- Labyrinh table -->
+            <div>
+                <table id="labyrinthTable"></table>
+            </div>
+        </div>
+        <script src="dist/bundle.js"></script>
+    </body>
 </html>

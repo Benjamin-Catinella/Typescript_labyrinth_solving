@@ -87,21 +87,24 @@ __webpack_require__.r(__webpack_exports__);
 class AdjacentSquares {
 }
 /*
-The solver needs to return a stack of moves to play for the view to use.
-The idea is that if we have a stack like this :
-[
-    entrance,
-    square1,
-    ..2,
-    ..3,
-    ..4,
-    ..5,
-    ..,
-    exit
-]
-The view can then process this stack as needed for animations/coloring/maybe timeline and such
-*/
+    The solver needs to return a stack of moves to play for the view to use.
+    The idea is that if we have a stack like this :
+    [
+        entrance,
+        square1,
+        ..2,
+        ..3,
+        ..4,
+        ..5,
+        ..,
+        exit
+    ]
+    The view can then process this stack as needed for animations/coloring/maybe timeline and such
+    */
 class LabyrinthSolver {
+    constructor() {
+        this.debug = false;
+    }
     /**
      * Finds the adjacent squares to the given square looping around the labyrinth (top, right, bottom, left)
      * @param square
@@ -115,7 +118,7 @@ class LabyrinthSolver {
             top: (((square.posY + 1) % labYLength) + labYLength) % labYLength,
             right: (((square.posX + 1) % labXLength) + labXLength) % labXLength,
             bottom: (((square.posY - 1) % labYLength) + labYLength) % labYLength,
-            left: (((square.posX - 1) % labXLength) + labXLength) % labXLength
+            left: (((square.posX - 1) % labXLength) + labXLength) % labXLength,
         };
         const positions = {
             top: new _model_Position__WEBPACK_IMPORTED_MODULE_0__.Position(square.posX, offsets.top),
@@ -123,11 +126,20 @@ class LabyrinthSolver {
             right: new _model_Position__WEBPACK_IMPORTED_MODULE_0__.Position(offsets.right, square.posY),
             left: new _model_Position__WEBPACK_IMPORTED_MODULE_0__.Position(offsets.left, square.posY),
         };
-        const adjacentSquares = squaresList.filter((square_) => {
-            return (square_.getPosition().equals(positions.top) ||
-                square_.getPosition().equals(positions.right) ||
-                square_.getPosition().equals(positions.bottom) ||
-                square_.getPosition().equals(positions.left));
+        const adjacentSquares = new AdjacentSquares();
+        squaresList.map((square_) => {
+            square_.getPosition().equals(positions.top)
+                ? (adjacentSquares.top = square_)
+                : undefined;
+            square_.getPosition().equals(positions.right)
+                ? (adjacentSquares.right = square_)
+                : undefined;
+            square_.getPosition().equals(positions.bottom)
+                ? (adjacentSquares.bottom = square_)
+                : undefined;
+            square_.getPosition().equals(positions.left)
+                ? (adjacentSquares.left = square_)
+                : undefined;
         });
         return adjacentSquares;
     }
@@ -144,68 +156,101 @@ class LabyrinthSolver {
             right: new _model_Position__WEBPACK_IMPORTED_MODULE_0__.Position(square.posX, square.posY + 1),
             left: new _model_Position__WEBPACK_IMPORTED_MODULE_0__.Position(square.posX, square.posY - 1),
         };
-        const adjacentSquares = new AdjacentSquares;
+        const adjacentSquares = new AdjacentSquares();
         squaresList.map((square_) => {
-            square_.getPosition().equals(positions.top) ? adjacentSquares.top = square_ : undefined;
-            square_.getPosition().equals(positions.right) ? adjacentSquares.right = square_ : undefined;
-            square_.getPosition().equals(positions.bottom) ? adjacentSquares.bottom = square_ : undefined;
-            square_.getPosition().equals(positions.left) ? adjacentSquares.left = square_ : undefined;
+            square_.getPosition().equals(positions.top)
+                ? (adjacentSquares.top = square_)
+                : undefined;
+            square_.getPosition().equals(positions.right)
+                ? (adjacentSquares.right = square_)
+                : undefined;
+            square_.getPosition().equals(positions.bottom)
+                ? (adjacentSquares.bottom = square_)
+                : undefined;
+            square_.getPosition().equals(positions.left)
+                ? (adjacentSquares.left = square_)
+                : undefined;
         });
         return adjacentSquares;
     }
     getPossibleMovesInAdjacentSquares(square, adjacent) {
         const possibleMoves = [];
         if (adjacent.top) {
-            !(square.walls.top || adjacent.top.walls.bottom) && !adjacent.top.isVisited() ? possibleMoves.push(adjacent.top) : null;
+            !(square.walls.top || adjacent.top.walls.bottom) &&
+                !adjacent.top.isVisited()
+                ? possibleMoves.push(adjacent.top)
+                : null;
         }
         if (adjacent.right) {
-            !(square.walls.right || adjacent.right.walls.left) && !adjacent.right.isVisited() ? possibleMoves.push(adjacent.right) : null;
+            !(square.walls.right || adjacent.right.walls.left) &&
+                !adjacent.right.isVisited()
+                ? possibleMoves.push(adjacent.right)
+                : null;
         }
         if (adjacent.bottom) {
-            !(square.walls.bottom || adjacent.bottom.walls.top) && !adjacent.bottom.isVisited() ? possibleMoves.push(adjacent.bottom) : null;
+            !(square.walls.bottom || adjacent.bottom.walls.top) &&
+                !adjacent.bottom.isVisited()
+                ? possibleMoves.push(adjacent.bottom)
+                : null;
         }
         if (adjacent.left) {
-            !(square.walls.left || adjacent.left.walls.right) && !adjacent.left.isVisited() ? possibleMoves.push(adjacent.left) : null;
+            !(square.walls.left || adjacent.left.walls.right) &&
+                !adjacent.left.isVisited()
+                ? possibleMoves.push(adjacent.left)
+                : null;
         }
         return possibleMoves;
     }
-    solve(labyrinth) {
-        _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Solving labyrinth", labyrinth);
+    BFS(labyrinth) {
+        _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Solving labyrinth using DFS", labyrinth);
         const stack = [];
+        // Find entrance square
         const entrance = labyrinth.find((square) => square.entrance);
-        _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Entrance", entrance);
         if (!entrance) {
             throw new Error("No entrance found");
         }
-        // Find entrance square
         stack.push(entrance);
         // Call recursive
-        return this.solveRec(stack, labyrinth);
+        return this.BFS_rec(stack, labyrinth, 0);
     }
-    solveRec(stack, labyrinth) {
-        // Sets as visited
-        const square = stack[stack.length - 1];
-        _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Visiting", square);
-        square.visit();
-        // If no possible moves, dead-end, removes itself from the stack, return; see later for 'win condition'
-        const possibleMoves = this.getPossibleMovesInAdjacentSquares(square, this.findAdjacentSquaresTo(square, labyrinth));
-        if (square.exit) {
-            _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Found exit");
+    BFS_rec(stack, labyrinth, count) {
+        var _a, _b;
+        const currentSquare = stack[stack.length - 1];
+        const squarehtml = document.getElementById(currentSquare.getId());
+        if (this.debug)
+            if (squarehtml)
+                squarehtml.innerHTML = count.toString();
+        count++; // Debug only
+        if (!currentSquare.isVisited()) {
+            currentSquare.visit();
+        }
+        if (currentSquare.exit) {
             return stack;
         }
+        const possibleMoves = this.getPossibleMovesInAdjacentSquares(currentSquare, this.findAdjacentSquaresTo(currentSquare, labyrinth));
         if (possibleMoves.length == 0) {
-            _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Met dead-end", square);
             stack.pop();
             return stack;
         }
-        // Push the move(s) to the stack and recurse
-        possibleMoves.forEach(move => {
+        for (const move of possibleMoves) {
             stack.push(move);
-            return this.solveRec(stack, labyrinth);
-        });
-        if (stack[stack.length - 1].exit) {
-            return stack;
+            const newStack = this.BFS_rec(stack, labyrinth, count);
+            // Pruned path
+            if (newStack.length == 0) {
+                if (this.debug)
+                    (_a = document.getElementById(move.getId())) === null || _a === void 0 ? void 0 : _a.classList.add("purple"); // Debug only
+                stack.pop();
+            }
+            // Found exit
+            else if (newStack[newStack.length - 1].exit) {
+                return newStack;
+            }
+            // Is a dead end
+            if (this.debug)
+                (_b = document.getElementById(move.getId())) === null || _b === void 0 ? void 0 : _b.classList.add("red"); // Debug only
         }
+        // Didn't find any path
+        return [];
     }
 }
 
@@ -473,6 +518,7 @@ const htmlElements = {
     selectSize: document.getElementById("sizeSelect"),
     choixLabyrinthe: document.getElementById("labyrinthSelect"),
     runSolverButton: document.getElementById("runSolver"),
+    debugCheckbox: document.getElementById("debugCheckbox"),
 };
 const squaresHTMLMap = {};
 // Dom manipulation functions
@@ -537,10 +583,16 @@ function onSelectLabyrinthChange($event) {
 function onClickRunSolver($event) {
     var _a;
     if (selectedLabyrinth) {
-        (_a = labyrinthSolver.solve(selectedLabyrinth.squares)) === null || _a === void 0 ? void 0 : _a.forEach((square) => {
-            squaresHTMLMap[square.getId()].classList.add("solution");
+        (_a = labyrinthSolver.BFS(selectedLabyrinth.squares)) === null || _a === void 0 ? void 0 : _a.forEach((square) => {
+            const squareElement = squaresHTMLMap[square.getId()];
+            if (!squareElement.classList.contains("exit") && !squareElement.classList.contains("entrance")) {
+                squareElement.classList.add("solution");
+            }
         });
     }
+}
+function onCheckboxChange($event) {
+    labyrinthSolver.debug = $event.target.checked;
 }
 // Change background color of the clicked case
 function onCaseClick($event) {
@@ -553,6 +605,7 @@ function main() {
         htmlElements.selectSize.addEventListener("change", onSelectSizeChange);
         htmlElements.choixLabyrinthe.addEventListener("change", onSelectLabyrinthChange);
         htmlElements.runSolverButton.addEventListener("click", onClickRunSolver);
+        htmlElements.debugCheckbox.addEventListener("change", onCheckboxChange);
         for (let i = 2; i < sizes; i++) {
             const option = document.createElement("option");
             option.value = (i + 1).toString();
