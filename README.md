@@ -2,6 +2,8 @@
 
 DLSM is a little project i am working on for a school project about algorithmics.
 
+![image](https://github.com/lecuek/Typescript_labyrinth_solving/assets/46426142/8fd59dfe-f791-470b-bfe4-f9f7952b69b4)
+
 # Running the project
 
 After cloning the project locally:
