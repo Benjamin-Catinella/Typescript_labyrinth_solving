@@ -28,6 +28,7 @@ const htmlElements = {
     runBFSButton: document.getElementById("runBFS"),
     runDFSButton: document.getElementById("runDFS"),
     debugCheckbox: document.getElementById("debugCheckbox") as HTMLInputElement,
+    resetButton: document.getElementById("resetButton"),
 };
 
 const squaresHTMLMap: { [key: string]: HTMLElement } = {};
@@ -154,6 +155,7 @@ async function init() {
     htmlElements.runBFSButton!.addEventListener("click", onClickBFS);
     htmlElements.runDFSButton!.addEventListener("click", onClickDFS);
     htmlElements.debugCheckbox!.addEventListener("change", onCheckboxChange);
+    htmlElements.resetButton!.addEventListener("click", resetLabyrinth);
     for (let i = 2; i < sizes; i++) {
         const option = document.createElement("option");
         option.value = (i + 1).toString();
