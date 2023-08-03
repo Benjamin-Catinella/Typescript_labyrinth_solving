@@ -1,3 +1,4 @@
+// Unused for now
 export abstract class AbstractNode<T> {
     value: T;
     children: AbstractNode<T>[];

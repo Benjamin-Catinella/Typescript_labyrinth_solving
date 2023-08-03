@@ -14,11 +14,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _model_Position__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../model/Position */ "./src/model/Position.ts");
 /* harmony import */ var _utils_Logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Logger */ "./src/utils/Logger.ts");
-/* harmony import */ var _model_Step__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../model/Step */ "./src/model/Step.ts");
-/* harmony import */ var _service_StepService__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../service/StepService */ "./src/service/StepService.ts");
-/* harmony import */ var _model_StepAction__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../model/StepAction */ "./src/model/StepAction.ts");
-
-
+/* harmony import */ var _service_StepService__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../service/StepService */ "./src/service/StepService.ts");
 
 
 
@@ -34,7 +30,7 @@ class AdjacentSquares {
 class LabyrinthSolver {
     constructor() {
         this.debug = false;
-        this.stepService = _service_StepService__WEBPACK_IMPORTED_MODULE_3__.StepService.getInstance();
+        this.stepService = _service_StepService__WEBPACK_IMPORTED_MODULE_2__.StepService.getInstance();
     }
     /**
      * Finds the adjacent squares to the given square looping around the labyrinth (top, right, bottom, left)
@@ -133,7 +129,7 @@ class LabyrinthSolver {
         }
         return possibleMoves;
     }
-    BFS(labyrinth) {
+    DFS(labyrinth) {
         _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Solving labyrinth using DFS", labyrinth);
         const stack = [];
         // Find entrance square
@@ -143,9 +139,9 @@ class LabyrinthSolver {
         }
         stack.push(entrance);
         // Call recursive
-        return this.BFS_rec(stack, labyrinth, 0);
+        return this.DFS_rec(stack, labyrinth, 0);
     }
-    BFS_rec(stack, labyrinth, count) {
+    DFS_rec(stack, labyrinth, count) {
         var _a, _b;
         const currentSquare = stack[stack.length - 1];
         const squarehtml = document.getElementById(currentSquare.getId());
@@ -155,7 +151,7 @@ class LabyrinthSolver {
         count++; // Debug only
         if (!currentSquare.isVisited()) {
             currentSquare.visit();
-            this.stepService.labyrinthSteps[labyrinth.id].push(new _model_Step__WEBPACK_IMPORTED_MODULE_2__.Step(currentSquare, _model_StepAction__WEBPACK_IMPORTED_MODULE_4__.StepAction.VISIT, count));
+            // this.stepService.labyrinthSteps[labyrinth.id].push(new Step(currentSquare, StepAction.VISIT, count));
         }
         if (currentSquare.exit) {
             return stack;
@@ -167,12 +163,12 @@ class LabyrinthSolver {
         }
         for (const move of possibleMoves) {
             stack.push(move);
-            const newStack = this.BFS_rec(stack, labyrinth, count);
+            const newStack = this.DFS_rec(stack, labyrinth, count);
             // Pruned path
             if (newStack.length == 0) {
                 if (this.debug)
                     (_a = document.getElementById(move.getId())) === null || _a === void 0 ? void 0 : _a.classList.add("purple"); // Debug only
-                this.stepService.labyrinthSteps[labyrinth.id].push(new _model_Step__WEBPACK_IMPORTED_MODULE_2__.Step(currentSquare, _model_StepAction__WEBPACK_IMPORTED_MODULE_4__.StepAction.BACKTRACK, count));
+                // this.stepService.labyrinthSteps[labyrinth.id].push(new Step(currentSquare, StepAction.BACKTRACK, count));
                 stack.pop();
             }
             // Found exit
@@ -185,6 +181,41 @@ class LabyrinthSolver {
         }
         // Didn't find any path
         return [];
+    }
+    BFS(labyrinth) {
+        _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Solving labyrinth using BFS", labyrinth);
+        // Find entrance square
+        const entrance = labyrinth.squares.find((square) => square.entrance);
+        if (!entrance) {
+            throw new Error("No entrance found");
+        }
+        // Call iterative function
+        return this.BFS_it(labyrinth, entrance);
+    }
+    BFS_it(labyrinth, entrance) {
+        const queue = [];
+        const path = [];
+        entrance.visit();
+        queue.push(entrance);
+        while (queue.length > 0) {
+            const current = queue.shift();
+            const neighbours = this.getPossibleMoves(current, labyrinth.squares);
+            for (let neighbour of neighbours) {
+                neighbour.setParent(current);
+                if (!neighbour.isVisited()) {
+                    neighbour.visit();
+                    if (neighbour.exit) {
+                        _utils_Logger__WEBPACK_IMPORTED_MODULE_1__.Logger.info("Found exit", neighbour);
+                        while (neighbour.getParent()) {
+                            path.push(neighbour);
+                            neighbour = neighbour.getParent();
+                        }
+                        return path;
+                    }
+                    queue.push(neighbour);
+                }
+            }
+        }
     }
 }
 
@@ -341,47 +372,14 @@ class Square {
     visit() {
         this.visited = true;
     }
-}
-
-
-/***/ }),
-
-/***/ "./src/model/Step.ts":
-/*!***************************!*\
-  !*** ./src/model/Step.ts ***!
-  \***************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   Step: () => (/* binding */ Step)
-/* harmony export */ });
-class Step {
-    constructor(square, action, number) {
-        this.square = square;
-        this.action = action;
-        this.number = number;
+    setParent(parent) {
+        this.parent = parent;
+        return this;
+    }
+    getParent() {
+        return this.parent;
     }
 }
-
-
-/***/ }),
-
-/***/ "./src/model/StepAction.ts":
-/*!*********************************!*\
-  !*** ./src/model/StepAction.ts ***!
-  \*********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   StepAction: () => (/* binding */ StepAction)
-/* harmony export */ });
-var StepAction;
-(function (StepAction) {
-    StepAction["VISIT"] = "VISIT";
-    StepAction["BACKTRACK"] = "BACKTRACK";
-})(StepAction || (StepAction = {}));
 
 
 /***/ }),
@@ -584,7 +582,8 @@ const htmlElements = {
     table: document.getElementById("labyrinthTable"),
     selectSize: document.getElementById("sizeSelect"),
     choixLabyrinthe: document.getElementById("labyrinthSelect"),
-    runSolverButton: document.getElementById("runSolver"),
+    runBFSButton: document.getElementById("runBFS"),
+    runDFSButton: document.getElementById("runDFS"),
     debugCheckbox: document.getElementById("debugCheckbox"),
 };
 const squaresHTMLMap = {};
@@ -612,6 +611,16 @@ function fillSelectLabyrinth() {
         option.value = key;
         option.innerText = key;
         htmlElements.choixLabyrinthe.appendChild(option);
+    });
+}
+function resetLabyrinth() {
+    selectedLabyrinth === null || selectedLabyrinth === void 0 ? void 0 : selectedLabyrinth.reset();
+    const keys = Object.keys(squaresHTMLMap);
+    keys.forEach((key) => {
+        squaresHTMLMap[key].classList.remove("solution");
+        squaresHTMLMap[key].classList.remove("purple");
+        squaresHTMLMap[key].classList.remove("red");
+        squaresHTMLMap[key].innerHTML = "";
     });
 }
 function populateSquaresHTMLMap(squares) {
@@ -643,18 +652,32 @@ function onSelectSizeChange($event) {
 function onSelectLabyrinthChange($event) {
     const target = $event.target;
     const labyrinthe = labyrinths[target.value];
-    selectedLabyrinth === null || selectedLabyrinth === void 0 ? void 0 : selectedLabyrinth.reset();
+    resetLabyrinth();
     selectedLabyrinth = labyrinthe;
     populateSquaresHTMLMap(labyrinthe.squares);
     displayLabyrinth(labyrinthe);
 }
-function onClickRunSolver($event) {
+function onClickBFS($event) {
     var _a;
     if (selectedLabyrinth) {
-        selectedLabyrinth.reset();
+        resetLabyrinth();
         (_a = labyrinthSolver.BFS(selectedLabyrinth)) === null || _a === void 0 ? void 0 : _a.forEach((square) => {
             const squareElement = squaresHTMLMap[square.getId()];
-            if (!squareElement.classList.contains("exit") && !squareElement.classList.contains("entrance")) {
+            if (!squareElement.classList.contains("exit") &&
+                !squareElement.classList.contains("entrance")) {
+                squareElement.classList.add("solution");
+            }
+        });
+    }
+}
+function onClickDFS($event) {
+    var _a;
+    if (selectedLabyrinth) {
+        resetLabyrinth();
+        (_a = labyrinthSolver.DFS(selectedLabyrinth)) === null || _a === void 0 ? void 0 : _a.forEach((square) => {
+            const squareElement = squaresHTMLMap[square.getId()];
+            if (!squareElement.classList.contains("exit") &&
+                !squareElement.classList.contains("entrance")) {
                 squareElement.classList.add("solution");
             }
         });
@@ -674,7 +697,8 @@ function init() {
         // Init dom elements
         htmlElements.selectSize.addEventListener("change", onSelectSizeChange);
         htmlElements.choixLabyrinthe.addEventListener("change", onSelectLabyrinthChange);
-        htmlElements.runSolverButton.addEventListener("click", onClickRunSolver);
+        htmlElements.runBFSButton.addEventListener("click", onClickBFS);
+        htmlElements.runDFSButton.addEventListener("click", onClickDFS);
         htmlElements.debugCheckbox.addEventListener("change", onCheckboxChange);
         for (let i = 2; i < sizes; i++) {
             const option = document.createElement("option");

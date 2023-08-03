@@ -7,25 +7,23 @@
     </head>
     <body>
         <div class="wrapper">
-            <!-- Labyrinth size select -->
-            <div class="selectContainer">
+            <!-- Actions -->
+            <div class="container">
                 <div class="select">
                     <select id="sizeSelect"></select>
                 </div>
                 <div class="select">
                     <select id="labyrinthSelect"></select>
                 </div>
-            </div>
-            <!-- Button to run solver -->
-            <div>
-                <button id="runSolver">Run BFS</button>
-                <label>
-                  Debug :
-                  <input type="checkbox" id="debugCheckbox">
+                <button id="runDFS">Run DFS</button>
+                <button id="runBFS">Run BFS</button>
+                <input type="checkbox" id="debugCheckbox" />
+                <label for="debugCheckbox">
+                    <p>Debug</p>
                 </label>
             </div>
             <!-- Labyrinh table -->
-            <div>
+            <div class="container backdrop">
                 <table id="labyrinthTable"></table>
             </div>
         </div>

@@ -138,7 +138,7 @@ export class LabyrinthSolver {
         return possibleMoves;
     }
 
-    BFS(labyrinth: Labyrinth): Square[] {
+    DFS(labyrinth: Labyrinth): Square[] {
         Logger.info("Solving labyrinth using DFS", labyrinth);
         const stack: Square[] = [];
 
@@ -150,10 +150,10 @@ export class LabyrinthSolver {
         stack.push(entrance);
 
         // Call recursive
-        return this.BFS_rec(stack, labyrinth, 0);
+        return this.DFS_rec(stack, labyrinth, 0);
     }
     
-    BFS_rec(stack: Square[], labyrinth: Labyrinth, count: number): Square[] {
+    DFS_rec(stack: Square[], labyrinth: Labyrinth, count: number): Square[] {
         const currentSquare = stack[stack.length - 1];
         const squarehtml = document.getElementById(currentSquare.getId());
         
@@ -161,7 +161,7 @@ export class LabyrinthSolver {
         
         if (!currentSquare.isVisited()) {
             currentSquare.visit();
-            this.stepService.labyrinthSteps[labyrinth.id].push(new Step(currentSquare, StepAction.VISIT, count));
+            // this.stepService.labyrinthSteps[labyrinth.id].push(new Step(currentSquare, StepAction.VISIT, count));
         }
         if (currentSquare.exit) {
             return stack;
@@ -176,11 +176,11 @@ export class LabyrinthSolver {
 
         for (const move of possibleMoves) {
             stack.push(move);
-            const newStack = this.BFS_rec(stack, labyrinth, count);
+            const newStack = this.DFS_rec(stack, labyrinth, count);
             // Pruned path
             if (newStack.length == 0) {
                 if(this.debug) document.getElementById(move.getId())?.classList.add("purple"); // Debug only
-                this.stepService.labyrinthSteps[labyrinth.id].push(new Step(currentSquare, StepAction.BACKTRACK, count));
+                // this.stepService.labyrinthSteps[labyrinth.id].push(new Step(currentSquare, StepAction.BACKTRACK, count));
                 stack.pop();
             }
             // Found exit
@@ -193,5 +193,50 @@ export class LabyrinthSolver {
 
         // Didn't find any path
         return [];
+    }
+
+
+    BFS(labyrinth : Labyrinth) : Square[] | undefined{
+        Logger.info("Solving labyrinth using BFS", labyrinth);
+
+        // Find entrance square
+        const entrance = labyrinth.squares.find((square) => square.entrance);
+        if (!entrance) {
+            throw new Error("No entrance found");
+        }
+
+        // Call iterative function
+        return this.BFS_it(labyrinth, entrance);
+    }
+
+    BFS_it(labyrinth: Labyrinth, entrance : Square) : Square[] | undefined{
+        const queue : Square[] = [];
+        const path : Square[] = [];
+
+        entrance.visit();
+        queue.push(entrance);
+        
+
+        while(queue.length > 0){
+            const current = queue.shift();
+
+            const neighbours = this.getPossibleMoves(current!, labyrinth.squares);
+
+            for(let neighbour of neighbours){
+                neighbour.setParent(current!);
+                if(!neighbour.isVisited()){
+                    neighbour.visit();
+                    if(neighbour.exit){
+                        Logger.info("Found exit", neighbour);
+                        while(neighbour.getParent()){
+                            path.push(neighbour);
+                            neighbour = neighbour.getParent()!;
+                        }
+                        return path;
+                    }
+                    queue.push(neighbour);
+                }
+            }
+        }
     }
 }

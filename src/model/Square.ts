@@ -10,6 +10,7 @@ export class Square {
         bottom: boolean,
         left: boolean
     };
+    parent : Square | undefined;
     exit : boolean;
     entrance : boolean;
     
@@ -41,6 +42,15 @@ export class Square {
 
     visit(): void {
         this.visited = true;
+    }
+
+    setParent(parent: Square): Square {
+        this.parent = parent;
+        return this;
+    }
+
+    getParent(): Square | undefined {
+        return this.parent;
     }
 }
 
