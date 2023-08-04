@@ -193,14 +193,19 @@ class LabyrinthSolver {
         return this.BFS_it(labyrinth, entrance);
     }
     BFS_it(labyrinth, entrance) {
+        var _a;
         const queue = [];
         const path = [];
+        let count = 0;
         entrance.visit();
         queue.push(entrance);
         while (queue.length > 0) {
             const current = queue.shift();
             const neighbours = this.getPossibleMoves(current, labyrinth.squares);
             for (let neighbour of neighbours) {
+                if (this.debug)
+                    document.getElementById(neighbour.getId()).innerHTML = count.toString(); // Debug only
+                count++;
                 neighbour.setParent(current);
                 if (!neighbour.isVisited()) {
                     neighbour.visit();
@@ -213,6 +218,8 @@ class LabyrinthSolver {
                         return path;
                     }
                     queue.push(neighbour);
+                    if (this.debug)
+                        (_a = document.getElementById(neighbour.getId())) === null || _a === void 0 ? void 0 : _a.classList.add("purple"); // Debug only
                 }
             }
         }

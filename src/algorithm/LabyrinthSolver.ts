@@ -212,7 +212,7 @@ export class LabyrinthSolver {
     BFS_it(labyrinth: Labyrinth, entrance : Square) : Square[] | undefined{
         const queue : Square[] = [];
         const path : Square[] = [];
-
+        let count = 0;
         entrance.visit();
         queue.push(entrance);
         
@@ -223,6 +223,8 @@ export class LabyrinthSolver {
             const neighbours = this.getPossibleMoves(current!, labyrinth.squares);
 
             for(let neighbour of neighbours){
+                if(this.debug) document.getElementById(neighbour!.getId())!.innerHTML = count.toString() // Debug only
+                count++;
                 neighbour.setParent(current!);
                 if(!neighbour.isVisited()){
                     neighbour.visit();
@@ -235,6 +237,7 @@ export class LabyrinthSolver {
                         return path;
                     }
                     queue.push(neighbour);
+                    if(this.debug) document.getElementById(neighbour!.getId())?.classList.add("purple"); // Debug only
                 }
             }
         }
