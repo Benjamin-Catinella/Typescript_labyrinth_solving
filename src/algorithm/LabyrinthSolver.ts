@@ -1,10 +1,7 @@
 import { Square } from '../model/Square';
 import { Position } from "../model/Position";
 import { Logger } from "../utils/Logger";
-import { Step } from '../model/Step';
-import { StepService } from '../service/StepService';
 import { Labyrinth } from '../model/Labyrinth';
-import { StepAction } from '../model/StepAction';
 
 class AdjacentSquares {
     top: Square | undefined;
@@ -22,7 +19,6 @@ class AdjacentSquares {
     */
 export class LabyrinthSolver {
     debug : boolean = false;
-    readonly stepService : StepService = StepService.getInstance();
     /**
      * Finds the adjacent squares to the given square looping around the labyrinth (top, right, bottom, left)
      * @param square
@@ -212,10 +208,12 @@ export class LabyrinthSolver {
     BFS_it(labyrinth: Labyrinth, entrance : Square) : Square[] | undefined{
         const queue : Square[] = [];
         const path : Square[] = [];
+        let neighbourhtml;
         let count = 0;
         entrance.visit();
         queue.push(entrance);
-        
+        document.getElementById(entrance.getId())!.innerHTML = count.toString() // Debug only
+        count++;
 
         while(queue.length > 0){
             const current = queue.shift();
@@ -223,7 +221,10 @@ export class LabyrinthSolver {
             const neighbours = this.getPossibleMoves(current!, labyrinth.squares);
 
             for(let neighbour of neighbours){
-                if(this.debug) document.getElementById(neighbour!.getId())!.innerHTML = count.toString() // Debug only
+                if(this.debug){
+                    neighbourhtml = document.getElementById(neighbour!.getId());
+                    document.getElementById(neighbour!.getId())!.innerHTML = count.toString() // Debug only
+                }
                 count++;
                 neighbour.setParent(current!);
                 if(!neighbour.isVisited()){
@@ -237,7 +238,7 @@ export class LabyrinthSolver {
                         return path;
                     }
                     queue.push(neighbour);
-                    if(this.debug) document.getElementById(neighbour!.getId())?.classList.add("purple"); // Debug only
+                    if(this.debug) neighbourhtml?.classList.add("purple"); // Debug only
                 }
             }
         }
