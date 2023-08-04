@@ -689,10 +689,12 @@ function onSquareClick($event) {
     target.classList.toggle("red");
 }
 function init() {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         const sizes = 25;
         // Init dom elements
         htmlElements.selectSize.addEventListener("change", onSelectSizeChange);
+        _utils_Logger__WEBPACK_IMPORTED_MODULE_2__.Logger.info((_a = htmlElements.selectSize) === null || _a === void 0 ? void 0 : _a.after);
         htmlElements.choixLabyrinthe.addEventListener("change", onSelectLabyrinthChange);
         htmlElements.runBFSButton.addEventListener("click", onClickBFS);
         htmlElements.runDFSButton.addEventListener("click", onClickDFS);
