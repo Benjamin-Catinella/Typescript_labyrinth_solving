@@ -1,0 +1,39 @@
+/* Variables */
+body.base {
+    /* General variables */
+    --slight-shadow: 0 5px 2px 1px rgba(0, 0, 0, 0.5);
+  
+  
+    /* Elements variables */
+    --page-color: #fffde8;
+    --menu-color: #420977;
+  
+    --table-border: #420977 solid 3px;
+    --table-background: #8438cc;
+    --table-shadow: 5px 5px 3px 3px rgba(0, 0, 0, 0.5);
+  
+    --square-color: #c4bbcc;
+    --square-default-border: #420977 dotted 1px;
+    /* --square-default-border: transparent dashed 3px; */
+    --exit-color: #f7343e;
+    --entrance-color: #fcf235;
+    --wall-border: #520c94 solid 3px;
+    --wall-border-radius: 10px;
+  
+    --select-color: #ffffff;
+    --select-text-color: #333333;
+  
+    --button-color: #5935f7;
+    --small-button-color: #fff2e9;
+    --small-button-text-color: black;
+    --button-shadow-hover: 0 4px 2px 1px rgba(0, 0, 0, 0.5);
+    --debug-active-button-color: #f7343e;
+    
+    --clickable-shadow: 0 5px 2px 1px rgba(0, 0, 0, 0.5);
+    --clickable-pressed-shadow: 0 2px 2px 0px rgba(0, 0, 0, 0.5) inset;
+    --clickable-pressed-active : #5e5e5e;
+    
+    --a-text-color: #000000;
+    
+    --label-color: #e0d8e7;
+  }

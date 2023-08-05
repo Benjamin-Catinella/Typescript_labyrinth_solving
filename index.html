@@ -2,30 +2,46 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
+        <meta name="description" content="Duck's Labyrinth Solving Micro-engine" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Duck's Labyrinth Solving Micro-engine</title>
         <link rel="icon" type="image/x-icon" href="./favicon.ico">
-        <link rel="stylesheet" href="style.css" />
+        <link rel="stylesheet" href="./css/theme.dark.css" />
+        <link rel="stylesheet" href="./css/theme.base.css" />
+        <link rel="stylesheet" href="./css/style.css" />
     </head>
-    <body>
+    <body class="base">
         <div class="wrapper">
+            <a href="https://github.com/lecuek/Duck-s-Labyrinth-Solving-Micro-engine" target="_blank" class="github">https://github.com/lecuek/Duck-s-Labyrinth-Solving-Micro-engine</a>
             <!-- Actions -->
-            <div class="container-row menu">
-                <div class="select">
+            <div class="container-row menu wrap-content">
+                <div class="select very-small">
                     <select id="sizeSelect"></select>
                 </div>
-                <div class="select">
+                <div class="select small">
                     <select id="labyrinthSelect"></select>
                 </div>
-                <button id="runDFS">Run DFS</button>
-                <button id="runBFS">Run BFS</button>
-                <input type="checkbox" id="debugCheckbox" />
-                <label for="debugCheckbox">
+                <button class="button clickable" id="runDFS">Run DFS</button>
+                <button class="button clickable" id="runBFS">Run BFS</button>
+                <input class="hidden" type="checkbox" id="debugCheckbox" />
+                <label class="button clickable" for="debugCheckbox">
                     <p>Debug</p>
                 </label>
-                <button id="resetButton">
+                <button class="button small clickable" id="resetButton">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
                         <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                    </svg>
+                </button>
+                <!-- TODO: <button class="button small clickable" id="shuffleButton">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-shuffle" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M0 3.5A.5.5 0 0 1 .5 3H1c2.202 0 3.827 1.24 4.874 2.418.49.552.865 1.102 1.126 1.532.26-.43.636-.98 1.126-1.532C9.173 4.24 10.798 3 13 3v1c-1.798 0-3.173 1.01-4.126 2.082A9.624 9.624 0 0 0 7.556 8a9.624 9.624 0 0 0 1.317 1.918C9.828 10.99 11.204 12 13 12v1c-2.202 0-3.827-1.24-4.874-2.418A10.595 10.595 0 0 1 7 9.05c-.26.43-.636.98-1.126 1.532C4.827 11.76 3.202 13 1 13H.5a.5.5 0 0 1 0-1H1c1.798 0 3.173-1.01 4.126-2.082A9.624 9.624 0 0 0 6.444 8a9.624 9.624 0 0 0-1.317-1.918C4.172 5.01 2.796 4 1 4H.5a.5.5 0 0 1-.5-.5z"/>
+                    <path d="M13 5.466V1.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192zm0 9v-3.932a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192z"/>
+                  </svg>
+                </button> -->
+                <button class="button small clickable" id="toggleThemeButton">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon" viewBox="0 0 16 16">
+                        <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278zM4.858 1.311A7.269 7.269 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.316 7.316 0 0 0 5.205-2.162c-.337.042-.68.063-1.029.063-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286z"/>
                     </svg>
                 </button>
             </div>

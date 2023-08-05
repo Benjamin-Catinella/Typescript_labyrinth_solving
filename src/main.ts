@@ -4,7 +4,7 @@
 
 import { Labyrinth } from "./model/Labyrinth";
 import { LabyrinthService } from "./service/LabyrinthService";
-import { CssMapper } from "./mapping/CssMapper";
+import { CssMapper } from "./service/StyleService";
 import { Square } from "./model/Square";
 import { Logger } from "./utils/Logger";
 import { LabyrinthSolver } from "./algorithm/LabyrinthSolver";
@@ -12,7 +12,7 @@ import { LabyrinthSolver } from "./algorithm/LabyrinthSolver";
 // Services
 
 const labyrinthService = new LabyrinthService();
-const cssMapper = new CssMapper();
+const styleService = new CssMapper();
 const labyrinthSolver: LabyrinthSolver = new LabyrinthSolver();
 
 // Variables
@@ -29,6 +29,7 @@ const htmlElements = {
     runDFSButton: document.getElementById("runDFS"),
     debugCheckbox: document.getElementById("debugCheckbox") as HTMLInputElement,
     resetButton: document.getElementById("resetButton"),
+    toggleThemeButton: document.getElementById("toggleThemeButton"),
 };
 
 const squaresHTMLMap: { [key: string]: HTMLElement } = {};
@@ -60,7 +61,7 @@ function fillSelectLabyrinth() {
         htmlElements.choixLabyrinthe!.appendChild(option);
     });
 }
-function resetLabyrinth() {
+function onClickResetButton() {
     selectedLabyrinth?.reset();
     const keys = Object.keys(squaresHTMLMap);
     keys.forEach((key) => {
@@ -78,7 +79,7 @@ function populateSquaresHTMLMap(squares: Square[]) {
         squareElement.classList.add("square");
         squareElement.classList.add("box");
         squareElement.addEventListener("click", onSquareClick);
-        cssMapper.getClassesFromSquare(square).forEach((cssClass) => {
+        styleService.getClassesFromSquare(square).forEach((cssClass) => {
             cssClass != "" ? squareElement.classList.add(cssClass) : null;
         });
         Logger.log("Adding caseElement", squareElement, "to squaresHTMLMap");
@@ -101,7 +102,7 @@ function onSelectSizeChange($event: Event) {
 function onSelectLabyrinthChange($event: Event) {
     const target = $event.target as HTMLSelectElement;
     const labyrinthe = labyrinths[target.value];
-    resetLabyrinth();
+    onClickResetButton();
     selectedLabyrinth = labyrinthe;
     populateSquaresHTMLMap(labyrinthe.squares);
     displayLabyrinth(labyrinthe);
@@ -109,7 +110,7 @@ function onSelectLabyrinthChange($event: Event) {
 
 function onClickBFS($event: Event) {
     if (selectedLabyrinth) {
-        resetLabyrinth();
+        onClickResetButton();
         labyrinthSolver.BFS(selectedLabyrinth)?.forEach((square) => {
             const squareElement = squaresHTMLMap[square.getId()];
             if (
@@ -123,7 +124,7 @@ function onClickBFS($event: Event) {
 }
 function onClickDFS($event: Event) {
     if (selectedLabyrinth) {
-        resetLabyrinth();
+        onClickResetButton();
         labyrinthSolver.DFS(selectedLabyrinth)?.forEach((square) => {
             const squareElement = squaresHTMLMap[square.getId()];
             if (
@@ -137,6 +138,11 @@ function onClickDFS($event: Event) {
 }
 function onCheckboxChange($event: Event) {
     labyrinthSolver.debug = ($event.target as HTMLInputElement).checked;
+}
+function onToggleThemeButton($event: Event) {
+    const theme = styleService.getNextTheme();
+    Logger.log("Changing theme to ", theme);
+    document.body.classList.value = theme;
 }
 // Change background color of the clicked case
 function onSquareClick($event: Event) {
@@ -155,7 +161,8 @@ async function init() {
     htmlElements.runBFSButton!.addEventListener("click", onClickBFS);
     htmlElements.runDFSButton!.addEventListener("click", onClickDFS);
     htmlElements.debugCheckbox!.addEventListener("change", onCheckboxChange);
-    htmlElements.resetButton!.addEventListener("click", resetLabyrinth);
+    htmlElements.resetButton!.addEventListener("click", onClickResetButton);
+    htmlElements.toggleThemeButton!.addEventListener("click", onToggleThemeButton);
     for (let i = 2; i < sizes; i++) {
         const option = document.createElement("option");
         option.value = (i + 1).toString();

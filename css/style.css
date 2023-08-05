@@ -1,0 +1,234 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--page-color);
+  font-family: monospace;
+}
+/* Wrappers */
+.wrapper{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.select {
+  box-shadow: var(--slight-shadow);
+  display: flex;
+  width: 300px;
+  height: 50px;
+  border-radius: 0.25em;
+}
+.labyrinth-table-container{
+  margin-top: 70px;
+  display: flex;
+  justify-content: center;
+}
+.menu{
+  width: 100%;
+  background-color: var(--menu-color);
+  align-items: center;
+}.menu > *{
+  margin: 10px;
+}
+
+/* Flex Helpers */
+.container-row{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+.container-column{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.wrap-content{
+  flex-wrap: wrap;
+}
+
+/* Properties */
+.hidden{
+  display: none;
+}
+.clickable{
+  transition: 0.25s all ease;
+  cursor: pointer;
+  border: none;
+  box-shadow: var(--clickable-shadow);
+}
+.clickable:hover{
+  position: relative;
+  top: 2px;
+}
+.clickable:active{
+  position: relative;
+  top: 5px;
+  background-color: var(--clickable-pressed-active);
+  box-shadow: var(--clickable-pressed-shadow);
+} 
+.select.small{
+  width: 150px;
+  height: 50px;
+}.select.very-small{
+  width: 80px;
+  height: 50px;
+}
+.button{
+  width: 100px;
+  height: 50px;
+
+  border-radius: 3px;
+  background-color: var(--button-color);
+  color: white;
+  cursor: pointer;
+  border: none;
+  box-shadow: var(--clickable-shadow);
+  transition: 0.25s position ease;
+}
+.button.small{
+  color: var(--small-button-text-color);
+  background-color: var(--small-button-color);
+  width: 25px;
+  height: 25px;
+}
+/* Custom Select */
+
+a.github{
+  margin-bottom: 5px;
+  color: var(--a-text-color);
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Label */
+label > p{
+  margin: 0;
+}
+label{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  text-align: center;
+  justify-content: center;
+  
+  background-color: var(--label-color);
+
+  cursor: pointer;
+  border: none;
+  box-shadow: var(--clickable-shadow);
+  transition: 0.25s position ease;
+} 
+
+/* Checkbox */
+input[type="checkbox"]:checked  + label{
+  color: white;
+  background-color: var(--debug-active-button-color);
+}input[type="checkbox"]:checked  + label::after{
+  content: "active";
+  color: white;
+  font-size: 0.7em;
+  font-weight: bold;
+}
+
+/* Select */
+select {
+  border-radius: 5px;
+  border: 0;
+  flex: 1;
+  padding: 0 1em;
+  background-color: var(--select-color);
+  color: var(--select-text-color);
+  cursor: pointer;
+}
+
+
+@media screen and (max-width: 800px) {
+  table {
+    width: 90vw;
+    height: 90vw;
+  }
+}
+@media screen and (min-width: 800px) {
+  table {
+    width: 35vw;
+    height: 35vw;
+  }
+}
+table {
+  box-shadow: var(--table-shadow);
+  border: var(--table-border);
+  border-collapse: collapse;
+  background-color: var(--table-background);
+  transition: 0.2s all ease;
+}
+
+
+/* Squares classes */
+
+.square {
+  box-sizing: border-box;
+  height: 1rem;
+  width: 1rem;
+  overflow: hidden;
+  font-size: 0.5em;
+  background-color: var(--square-color);
+  border: var(--square-default-border);
+  text-align: center;
+  /* For animation */
+  transition: 0.2s all ease;
+}.square:hover{
+  position: relative;
+  transform: scale(1.1);
+}
+
+.entrance {
+  background-color: var(--entrance-color);
+}
+
+.exit {
+  color: white;
+  background-color: var(--exit-color);
+}
+
+.wall-top{
+  border-top: var(--wall-border);
+}
+
+.wall-bottom {
+  border-bottom: var(--wall-border);
+}
+
+.wall-left {
+  border-left: var(--wall-border);
+}
+
+.wall-right {
+  border-right: var(--wall-border);
+}
+.purple{
+  background-color: rgb(198, 109, 216);
+  color: white;
+  animation: bounceAnimation 0.45s backwards;
+}
+.solution{
+  background-color: #5935f7;
+  color: white;
+  animation: bounceAnimation 0.25s normal;
+}
+.red {
+  background-color: rgb(255, 89, 89);
+  color: white;
+  animation: bounceAnimation 0.45s backwards;
+}
+@keyframes bounceAnimation {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
