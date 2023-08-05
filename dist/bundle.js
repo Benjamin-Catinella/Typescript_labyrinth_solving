@@ -230,32 +230,6 @@ class LabyrinthSolver {
 
 /***/ }),
 
-/***/ "./src/mapping/CssMapper.ts":
-/*!**********************************!*\
-  !*** ./src/mapping/CssMapper.ts ***!
-  \**********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   CssMapper: () => (/* binding */ CssMapper)
-/* harmony export */ });
-class CssMapper {
-    getClassesFromSquare(square) {
-        const classes = [];
-        classes.push(square.walls.top ? "wall-top" : "");
-        classes.push(square.walls.right ? "wall-right" : "");
-        classes.push(square.walls.bottom ? "wall-down" : "");
-        classes.push(square.walls.left ? "wall-left" : "");
-        classes.push(square.exit ? "exit" : "");
-        classes.push(square.entrance ? "entrance" : "");
-        return classes;
-    }
-}
-
-
-/***/ }),
-
 /***/ "./src/mapping/JsonMapper.ts":
 /*!***********************************!*\
   !*** ./src/mapping/JsonMapper.ts ***!
@@ -441,6 +415,41 @@ class LabyrinthService {
 
 /***/ }),
 
+/***/ "./src/service/StyleService.ts":
+/*!*************************************!*\
+  !*** ./src/service/StyleService.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CssMapper: () => (/* binding */ CssMapper)
+/* harmony export */ });
+class CssMapper {
+    constructor() {
+        this.themes = ["base", "dark"];
+        this.selectedTheme = "base";
+    }
+    getClassesFromSquare(square) {
+        const classes = [];
+        classes.push(square.walls.top ? "wall-top" : "");
+        classes.push(square.walls.right ? "wall-right" : "");
+        classes.push(square.walls.bottom ? "wall-down" : "");
+        classes.push(square.walls.left ? "wall-left" : "");
+        classes.push(square.exit ? "exit" : "");
+        classes.push(square.entrance ? "entrance" : "");
+        return classes;
+    }
+    getNextTheme() {
+        const index = this.themes.indexOf(this.selectedTheme);
+        this.selectedTheme = this.themes[(index + 1) % this.themes.length];
+        return this.selectedTheme;
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/utils/Logger.ts":
 /*!*****************************!*\
   !*** ./src/utils/Logger.ts ***!
@@ -547,7 +556,7 @@ var __webpack_exports__ = {};
   \*********************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _service_LabyrinthService__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./service/LabyrinthService */ "./src/service/LabyrinthService.ts");
-/* harmony import */ var _mapping_CssMapper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mapping/CssMapper */ "./src/mapping/CssMapper.ts");
+/* harmony import */ var _service_StyleService__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./service/StyleService */ "./src/service/StyleService.ts");
 /* harmony import */ var _utils_Logger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Logger */ "./src/utils/Logger.ts");
 /* harmony import */ var _algorithm_LabyrinthSolver__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./algorithm/LabyrinthSolver */ "./src/algorithm/LabyrinthSolver.ts");
 /**
@@ -568,7 +577,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 // Services
 const labyrinthService = new _service_LabyrinthService__WEBPACK_IMPORTED_MODULE_0__.LabyrinthService();
-const cssMapper = new _mapping_CssMapper__WEBPACK_IMPORTED_MODULE_1__.CssMapper();
+const styleService = new _service_StyleService__WEBPACK_IMPORTED_MODULE_1__.CssMapper();
 const labyrinthSolver = new _algorithm_LabyrinthSolver__WEBPACK_IMPORTED_MODULE_3__.LabyrinthSolver();
 // Variables
 let labyrinths;
@@ -582,6 +591,7 @@ const htmlElements = {
     runDFSButton: document.getElementById("runDFS"),
     debugCheckbox: document.getElementById("debugCheckbox"),
     resetButton: document.getElementById("resetButton"),
+    toggleThemeButton: document.getElementById("toggleThemeButton"),
 };
 const squaresHTMLMap = {};
 // Dom manipulation functions
@@ -610,7 +620,7 @@ function fillSelectLabyrinth() {
         htmlElements.choixLabyrinthe.appendChild(option);
     });
 }
-function resetLabyrinth() {
+function onClickResetButton() {
     selectedLabyrinth === null || selectedLabyrinth === void 0 ? void 0 : selectedLabyrinth.reset();
     const keys = Object.keys(squaresHTMLMap);
     keys.forEach((key) => {
@@ -628,7 +638,7 @@ function populateSquaresHTMLMap(squares) {
         squareElement.classList.add("square");
         squareElement.classList.add("box");
         squareElement.addEventListener("click", onSquareClick);
-        cssMapper.getClassesFromSquare(square).forEach((cssClass) => {
+        styleService.getClassesFromSquare(square).forEach((cssClass) => {
             cssClass != "" ? squareElement.classList.add(cssClass) : null;
         });
         _utils_Logger__WEBPACK_IMPORTED_MODULE_2__.Logger.log("Adding caseElement", squareElement, "to squaresHTMLMap");
@@ -649,7 +659,7 @@ function onSelectSizeChange($event) {
 function onSelectLabyrinthChange($event) {
     const target = $event.target;
     const labyrinthe = labyrinths[target.value];
-    resetLabyrinth();
+    onClickResetButton();
     selectedLabyrinth = labyrinthe;
     populateSquaresHTMLMap(labyrinthe.squares);
     displayLabyrinth(labyrinthe);
@@ -657,7 +667,7 @@ function onSelectLabyrinthChange($event) {
 function onClickBFS($event) {
     var _a;
     if (selectedLabyrinth) {
-        resetLabyrinth();
+        onClickResetButton();
         (_a = labyrinthSolver.BFS(selectedLabyrinth)) === null || _a === void 0 ? void 0 : _a.forEach((square) => {
             const squareElement = squaresHTMLMap[square.getId()];
             if (!squareElement.classList.contains("exit") &&
@@ -670,7 +680,7 @@ function onClickBFS($event) {
 function onClickDFS($event) {
     var _a;
     if (selectedLabyrinth) {
-        resetLabyrinth();
+        onClickResetButton();
         (_a = labyrinthSolver.DFS(selectedLabyrinth)) === null || _a === void 0 ? void 0 : _a.forEach((square) => {
             const squareElement = squaresHTMLMap[square.getId()];
             if (!squareElement.classList.contains("exit") &&
@@ -682,6 +692,11 @@ function onClickDFS($event) {
 }
 function onCheckboxChange($event) {
     labyrinthSolver.debug = $event.target.checked;
+}
+function onToggleThemeButton($event) {
+    const theme = styleService.getNextTheme();
+    _utils_Logger__WEBPACK_IMPORTED_MODULE_2__.Logger.log("Changing theme to ", theme);
+    document.body.classList.value = theme;
 }
 // Change background color of the clicked case
 function onSquareClick($event) {
@@ -697,7 +712,8 @@ function init() {
         htmlElements.runBFSButton.addEventListener("click", onClickBFS);
         htmlElements.runDFSButton.addEventListener("click", onClickDFS);
         htmlElements.debugCheckbox.addEventListener("change", onCheckboxChange);
-        htmlElements.resetButton.addEventListener("click", resetLabyrinth);
+        htmlElements.resetButton.addEventListener("click", onClickResetButton);
+        htmlElements.toggleThemeButton.addEventListener("click", onToggleThemeButton);
         for (let i = 2; i < sizes; i++) {
             const option = document.createElement("option");
             option.value = (i + 1).toString();
