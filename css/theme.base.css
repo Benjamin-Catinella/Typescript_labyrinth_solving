@@ -14,6 +14,7 @@ body.base {
   
     --square-color: #c4bbcc;
     --square-default-border: #420977 dotted 1px;
+    /* --square-default-border: transparent dashed 3px; */
     --exit-color: #f7343e;
     --entrance-color: #fcf235;
     --wall-border: #520c94 solid 3px;
