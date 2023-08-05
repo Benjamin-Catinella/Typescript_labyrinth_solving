@@ -1,6 +1,8 @@
 import { Square } from "../model/Square";
 
 export class CssMapper{
+    private themes = ["base", "dark"];
+    private selectedTheme = "base";
 
     getClassesFromSquare(square: Square): string[] {
         const classes: string[] = [];
@@ -13,4 +15,9 @@ export class CssMapper{
         return classes;
     }      
 
+    getNextTheme(): string {
+        const index = this.themes.indexOf(this.selectedTheme);
+        this.selectedTheme = this.themes[(index + 1) % this.themes.length]; 
+        return this.selectedTheme;
+    }
 }

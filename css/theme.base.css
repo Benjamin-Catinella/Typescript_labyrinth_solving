@@ -1,5 +1,5 @@
 /* Variables */
-:root {
+body.base {
     /* General variables */
     --slight-shadow: 0 5px 2px 1px rgba(0, 0, 0, 0.5);
   
@@ -31,6 +31,8 @@
     --clickable-shadow: 0 5px 2px 1px rgba(0, 0, 0, 0.5);
     --clickable-pressed-shadow: 0 2px 2px 0px rgba(0, 0, 0, 0.5) inset;
     --clickable-pressed-active : #5e5e5e;
+    
+    --a-text-color: #000000;
     
     --label-color: #e0d8e7;
   }
