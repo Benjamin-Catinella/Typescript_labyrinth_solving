@@ -3,7 +3,7 @@ Pages : https://lecuek.github.io/Duck-s-Labyrinth-Solving-Micro-engine/
 
 DLSMe is a little project i am working on for a school project about algorithmics.
 
-![image](https://github.com/lecuek/Typescript_labyrinth_solving/assets/46426142/8fd59dfe-f791-470b-bfe4-f9f7952b69b4)
+![image](https://github.com/lecuek/Duck-s-Labyrinth-Solving-Micro-engine/assets/46426142/7c79fa55-b63f-4bbe-ae7e-15e0d8874ac2)
 
 # Running the project
 
