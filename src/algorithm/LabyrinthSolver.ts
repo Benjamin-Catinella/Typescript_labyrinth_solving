@@ -212,7 +212,7 @@ export class LabyrinthSolver {
         let count = 0;
         entrance.visit();
         queue.push(entrance);
-        document.getElementById(entrance.getId())!.innerHTML = count.toString() // Debug only
+        if(this.debug) document.getElementById(entrance.getId())!.innerHTML = count.toString() // Debug only
         count++;
 
         while(queue.length > 0){
