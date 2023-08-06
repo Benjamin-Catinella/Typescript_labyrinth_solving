@@ -2,6 +2,15 @@ import { Square } from '../model/Square';
 import { Labyrinth } from '../model/Labyrinth';
 export class JsonMapper {
 
+  private static instance: JsonMapper;
+
+  public static getInstance(): JsonMapper {
+    if (!JsonMapper.instance) {
+      JsonMapper.instance = new JsonMapper();
+    }
+    return JsonMapper.instance;
+  }
+
   public toLabyrinth(json: any, size: number, id: string) {
     const _size = {
       width: size,

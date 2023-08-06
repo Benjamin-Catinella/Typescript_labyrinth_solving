@@ -2,6 +2,7 @@ import { Square } from '../model/Square';
 import { Position } from "../model/Position";
 import { Logger } from "../utils/Logger";
 import { Labyrinth } from '../model/Labyrinth';
+import { SettingsService } from '../service/SettingsService';
 
 class AdjacentSquares {
     top: Square | undefined;
@@ -17,7 +18,20 @@ class AdjacentSquares {
 
     */
 export class LabyrinthSolver {
-    debug : boolean = false;
+    private static instance: LabyrinthSolver;
+    private readonly settingsService: SettingsService;
+
+    public static getInstance(): LabyrinthSolver {
+        if (!LabyrinthSolver.instance) {
+            LabyrinthSolver.instance = new LabyrinthSolver();
+        }
+        return LabyrinthSolver.instance;
+    }
+
+    private constructor() {
+        this.settingsService = SettingsService.getInstance();
+    }
+
     /**
      * Finds the adjacent squares to the given square looping around the labyrinth (top, right, bottom, left)
      * @param square
@@ -134,7 +148,7 @@ export class LabyrinthSolver {
     }
 
     DFS(labyrinth: Labyrinth): Square[] {
-        Logger.info("Solving labyrinth using DFS", labyrinth);
+        Logger.debug("Solving labyrinth using DFS", labyrinth);
         const stack: Square[] = [];
 
         // Find entrance square
@@ -152,7 +166,7 @@ export class LabyrinthSolver {
         const currentSquare = stack[stack.length - 1];
         const squarehtml = document.getElementById(currentSquare.getId());
         
-        if(this.debug) if(squarehtml) squarehtml.innerHTML = count.toString(); count++; // Debug only
+        if(this.settingsService.settings.debug) if(squarehtml) squarehtml.innerHTML = count.toString(); count++; // Debug only
         
         if (!currentSquare.isVisited()) {
             currentSquare.visit();
@@ -174,7 +188,7 @@ export class LabyrinthSolver {
             const newStack = this.DFS_rec(stack, labyrinth, count);
             // Pruned path
             if (newStack.length == 0) {
-                if(this.debug) document.getElementById(move.getId())?.classList.add("purple"); // Debug only
+                if(this.settingsService.settings.debug) document.getElementById(move.getId())?.classList.add("purple"); // Debug only
                 // this.stepService.labyrinthSteps[labyrinth.id].push(new Step(currentSquare, StepAction.BACKTRACK, count));
                 stack.pop();
             }
@@ -183,7 +197,7 @@ export class LabyrinthSolver {
                 return newStack;
             }
             // Is a dead end
-            if(this.debug) document.getElementById(move.getId())?.classList.add("red"); // Debug only
+            if(this.settingsService.settings.debug) document.getElementById(move.getId())?.classList.add("red"); // Debug only
         }
 
         // Didn't find any path
@@ -192,7 +206,7 @@ export class LabyrinthSolver {
 
 
     BFS(labyrinth : Labyrinth) : Square[] | undefined{
-        Logger.info("Solving labyrinth using BFS", labyrinth);
+        Logger.debug("Solving labyrinth using BFS", labyrinth);
 
         // Find entrance square
         const entrance = labyrinth.squares.find((square) => square.entrance);
@@ -211,7 +225,7 @@ export class LabyrinthSolver {
         let count = 0;
         entrance.visit();
         queue.push(entrance);
-        if(this.debug) document.getElementById(entrance.getId())!.innerHTML = count.toString() // Debug only
+        if(this.settingsService.settings.debug) document.getElementById(entrance.getId())!.innerHTML = count.toString() // Debug only
         count++;
 
         while(queue.length > 0){
@@ -220,7 +234,7 @@ export class LabyrinthSolver {
             const neighbours = this.getAccessibleNeighbours(current!, labyrinth.squares);
 
             for(let neighbour of neighbours){
-                if(this.debug){
+                if(this.settingsService.settings.debug){
                     neighbourhtml = document.getElementById(neighbour!.getId());
                     document.getElementById(neighbour!.getId())!.innerHTML = count.toString() // Debug only
                 }
@@ -229,7 +243,7 @@ export class LabyrinthSolver {
                 if(!neighbour.isVisited()){
                     neighbour.visit();
                     if(neighbour.exit){
-                        Logger.info("Found exit", neighbour);
+                        Logger.debug("Found exit", neighbour);
                         while(neighbour.getParent()){
                             path.push(neighbour);
                             neighbour = neighbour.getParent()!;
@@ -237,7 +251,7 @@ export class LabyrinthSolver {
                         return path;
                     }
                     queue.push(neighbour);
-                    if(this.debug) neighbourhtml?.classList.add("purple"); // Debug only
+                    if(this.settingsService.settings.debug) neighbourhtml?.classList.add("purple"); // Debug only
                 }
             }
         }
