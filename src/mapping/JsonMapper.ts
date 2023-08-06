@@ -7,11 +7,20 @@ export class JsonMapper {
       width: size,
       height: size,
     };
-    const cases: Square[] = [];
+    const squares: Square[] = [];
+    const entrances: Square[] = [];
+    const exits: Square[] = [];
     for (let i = 0; i < json.length; i++) {
-      cases.push(this.toSquare(json[i]));
+      const square = this.toSquare(json[i]);
+      if(square.entrance) {
+        entrances.push(square);
+      }
+      if(square.exit) {
+        exits.push(square);
+      }
+      squares.push(square);
     }
-    return new Labyrinth(id, _size, cases);
+    return new Labyrinth(id, _size, squares, entrances, exits);
   }
 
   toSquare(json: any) {

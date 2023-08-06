@@ -8,6 +8,7 @@ import { CssMapper } from "./service/StyleService";
 import { Square } from "./model/Square";
 import { Logger } from "./utils/Logger";
 import { LabyrinthSolver } from "./algorithm/LabyrinthSolver";
+import { GraphMapper } from "./mapping/GraphMapper";
 
 // Services
 
@@ -72,7 +73,6 @@ function onClickResetButton() {
     });
 }
 function populateSquaresHTMLMap(squares: Square[]) {
-    Logger.log("Populating casesHTMLMap ...");
     squares.forEach((square) => {
         const squareElement = document.createElement("td");
         squareElement.id = square.getId();
@@ -82,10 +82,8 @@ function populateSquaresHTMLMap(squares: Square[]) {
         styleService.getClassesFromSquare(square).forEach((cssClass) => {
             cssClass != "" ? squareElement.classList.add(cssClass) : null;
         });
-        Logger.log("Adding caseElement", squareElement, "to squaresHTMLMap");
         squaresHTMLMap[square.getId()] = squareElement;
     });
-    Logger.log("Finished populating caseHTMLMap : ", squaresHTMLMap);
 }
 // Event handlers
 
@@ -106,6 +104,8 @@ function onSelectLabyrinthChange($event: Event) {
     selectedLabyrinth = labyrinthe;
     populateSquaresHTMLMap(labyrinthe.squares);
     displayLabyrinth(labyrinthe);
+    const graphMapper = new GraphMapper();
+    graphMapper.mapLabyrinthToGraph(selectedLabyrinth);
 }
 
 function onClickBFS($event: Event) {
@@ -141,7 +141,6 @@ function onCheckboxChange($event: Event) {
 }
 function onToggleThemeButton($event: Event) {
     const theme = styleService.getNextTheme();
-    Logger.log("Changing theme to ", theme);
     document.body.classList.value = theme;
 }
 // Change background color of the clicked case
@@ -150,7 +149,7 @@ function onSquareClick($event: Event) {
     target.classList.toggle("red");
 }
 
-async function init() {
+function init() {
     const sizes = 25;
     // Init dom elements
     htmlElements.selectSize!.addEventListener("change", onSelectSizeChange);

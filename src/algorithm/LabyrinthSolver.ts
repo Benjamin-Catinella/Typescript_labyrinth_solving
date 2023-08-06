@@ -9,7 +9,6 @@ class AdjacentSquares {
     bottom: Square | undefined;
     right: Square | undefined;
 }
-
 /* 
     The solver needs to return a detailed stack of steps taken to solve the labyrinth
     The Step class should contain the following information:
@@ -71,7 +70,7 @@ export class LabyrinthSolver {
      * @param squaresList
      * @returns
      */
-    private findAdjacentSquaresTo(
+    private getAllNeighbours(
         square: Square,
         squaresList: Square[]
     ): AdjacentSquares {
@@ -101,37 +100,37 @@ export class LabyrinthSolver {
         return adjacentSquares;
     }
 
-    getPossibleMoves(
+    getAccessibleNeighbours(
         square: Square,
         squaresList: Square[]
     ): Square[] {
-        const possibleMoves: Square[] = [];
-        const adjacent = this.findAdjacentSquaresTo(square, squaresList);
+        const neighbours: Square[] = [];
+        const adjacent = this.getAllNeighbours(square, squaresList);
         if (adjacent.top) {
             !(square.walls.top || adjacent.top.walls.bottom) &&
             !adjacent.top.isVisited()
-                ? possibleMoves.push(adjacent.top)
+                ? neighbours.push(adjacent.top)
                 : null;
         }
         if (adjacent.right) {
             !(square.walls.right || adjacent.right.walls.left) &&
             !adjacent.right.isVisited()
-                ? possibleMoves.push(adjacent.right)
+                ? neighbours.push(adjacent.right)
                 : null;
         }
         if (adjacent.bottom) {
             !(square.walls.bottom || adjacent.bottom.walls.top) &&
             !adjacent.bottom.isVisited()
-                ? possibleMoves.push(adjacent.bottom)
+                ? neighbours.push(adjacent.bottom)
                 : null;
         }
         if (adjacent.left) {
             !(square.walls.left || adjacent.left.walls.right) &&
             !adjacent.left.isVisited()
-                ? possibleMoves.push(adjacent.left)
+                ? neighbours.push(adjacent.left)
                 : null;
         }
-        return possibleMoves;
+        return neighbours;
     }
 
     DFS(labyrinth: Labyrinth): Square[] {
@@ -163,7 +162,7 @@ export class LabyrinthSolver {
             return stack;
         }
 
-        const possibleMoves = this.getPossibleMoves(currentSquare, labyrinth.squares);
+        const possibleMoves = this.getAccessibleNeighbours(currentSquare, labyrinth.squares);
 
         if (possibleMoves.length == 0) {
             stack.pop();
@@ -218,7 +217,7 @@ export class LabyrinthSolver {
         while(queue.length > 0){
             const current = queue.shift();
 
-            const neighbours = this.getPossibleMoves(current!, labyrinth.squares);
+            const neighbours = this.getAccessibleNeighbours(current!, labyrinth.squares);
 
             for(let neighbour of neighbours){
                 if(this.debug){
