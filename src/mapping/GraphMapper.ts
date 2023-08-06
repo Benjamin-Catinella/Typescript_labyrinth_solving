@@ -1,4 +1,4 @@
-import { NodeGraph } from '../model/NodeGraph';
+import { Graph } from '../model/Graph';
 import { Labyrinth } from "../model/Labyrinth";
 import { Node } from '../model/Node';
 import { Position } from "../model/Position";
@@ -85,8 +85,8 @@ export class GraphMapper{
      * @param labyrinth 
      * @returns 
      */
-    public mapLabyrinthToGraph(labyrinth: Labyrinth): NodeGraph {
-        const nodeGraph : NodeGraph = new NodeGraph(labyrinth.id);
+    public mapLabyrinthToGraph(labyrinth: Labyrinth): Graph {
+        const nodeGraph : Graph = new Graph(labyrinth.id);
         // Convert labyrinth squares a list of nodes
         for (const square of labyrinth.squares) {
             let node = nodeGraph.getNode(square.getId());

@@ -1,6 +1,6 @@
 import { Node } from "./Node";
 
-export class NodeGraph{
+export class Graph{
     readonly id: string;
     readonly nodes: {
         [key: string]: Node;
@@ -15,7 +15,7 @@ export class NodeGraph{
         return this.nodes[id];
     }
 
-    public addNode(node: Node): NodeGraph{
+    public addNode(node: Node): Graph{
         this.nodes[node.getId()] = node;
         return this;
     }
