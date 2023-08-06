@@ -1,8 +1,19 @@
 import { Square } from "../model/Square";
 
-export class CssMapper{
+export class StyleService{
     private themes = ["base", "dark"];
     private selectedTheme = "base";
+
+    private static instance: StyleService;
+
+    public static getInstance(): StyleService {
+        if (!StyleService.instance) {
+            StyleService.instance = new StyleService();
+        }
+        return StyleService.instance;
+    }
+
+    private constructor() {}
 
     getClassesFromSquare(square: Square): string[] {
         const classes: string[] = [];

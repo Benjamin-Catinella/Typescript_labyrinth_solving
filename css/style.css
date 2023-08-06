@@ -171,7 +171,7 @@ table {
   height: 1rem;
   width: 1rem;
   overflow: hidden;
-  font-size: 0.7em;
+  font-size: smaller;
   background-color: var(--square-color);
   border: var(--square-default-border);
   text-align: center;
